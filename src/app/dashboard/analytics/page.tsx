@@ -1,20 +1,21 @@
-// Страница аналитики с графиками
-// Здесь будут:
-// - Круговая диаграмма расходов по категориям (Recharts PieChart)
-// - Линейный график трат по месяцам (Recharts LineChart)
-// - Тепловая карта по дням (Recharts)
-// - AI-инсайты от Groq llama-3.3-70b
-//
-// Всё это — клиентские компоненты ("use client"), потому что
-// Recharts использует браузерные API и не работает на сервере
+// src/app/dashboard/analytics/page.tsx
+// Серверный компонент — загружает транзакции, передаёт в AnalyticsClient.
+// Заголовок и отступы — внутри AnalyticsClient.
 
-export default function AnalyticsPage() {
-  return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-1">Аналитика</h2>
-      <p className="text-muted-foreground">
-        Загрузите выписку чтобы увидеть графики и AI-анализ расходов.
-      </p>
-    </div>
-  );
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
+import AnalyticsClient from "@/components/AnalyticsClient";
+
+export default async function AnalyticsPage() {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: transactions } = await supabase
+    .from("transactions")
+    .select("date, amount, category")
+    .order("date", { ascending: true });
+
+  return <AnalyticsClient transactions={transactions ?? []} />;
 }

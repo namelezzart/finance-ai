@@ -16,12 +16,19 @@ import { detectBank } from "./normalize";
 import { parseAlfa } from "./alfa";
 import { parseTinkoff } from "./tinkoff";
 import { parseSber } from "./sber";
-import type { Transaction, Bank } from "@/types";
+import type { RawTransaction } from "./normalize";
+import type { Bank } from "@/types";
 
 // Результат парсинга — банк + массив транзакций
 interface ParseResult {
   bank: Bank;
-  transactions: Transaction[];
+  transactions: RawTransaction[];
+}
+
+function getCsvHeaders(csvText: string): string[] {
+  const firstLine = csvText.replace(/^\uFEFF/, "").split(/\r?\n/)[0] ?? "";
+  const delimiter = firstLine.includes(";") ? ";" : ",";
+  return firstLine.split(delimiter).map((header) => header.trim());
 }
 
 // parseCSV — универсальная функция-обёртка.
@@ -40,23 +47,31 @@ export async function parseCSV(
 
   // Определяем банк по заголовкам CSV.
   // detectBank анализирует первую строку файла.
-  const bank = detectBank(utf8Text);
+  const bank = detectBank(getCsvHeaders(utf8Text));
 
   if (bank === "sber") {
     // Сбер использует Windows-1251 — перекодируем
     const sberText = new TextDecoder("windows-1251").decode(buffer);
-    const transactions = parseSber(sberText, "placeholder-upload-id");
+    const transactions = parseSber(sberText);
     return { bank, transactions };
   }
 
   if (bank === "alfa") {
-    const transactions = parseAlfa(utf8Text, "placeholder-upload-id");
+    const transactions = parseAlfa(utf8Text);
     return { bank, transactions };
   }
 
   if (bank === "tinkoff") {
-    const transactions = parseTinkoff(utf8Text, "placeholder-upload-id");
+    const transactions = parseTinkoff(utf8Text);
     return { bank, transactions };
+  }
+
+  const sberText = new TextDecoder("windows-1251").decode(buffer);
+  const sberBank = detectBank(getCsvHeaders(sberText));
+
+  if (sberBank === "sber") {
+    const transactions = parseSber(sberText);
+    return { bank: sberBank, transactions };
   }
 
   // Если банк не определён — бросаем ошибку с понятным сообщением

@@ -1,17 +1,21 @@
-// Страница истории загрузок
-// Показывает все загруженные ранее выписки из таблицы uploads в Supabase
-// Колонки: дата загрузки, название файла, банк, кол-во транзакций, статус
-//
-// Это серверный компонент — данные грузим напрямую из Supabase
-// без дополнительного API роута, так как компонент выполняется на сервере
+// src/app/dashboard/history/page.tsx
+// Серверный компонент — загружает список загрузок, передаёт в HistoryClient.
+// Заголовок и отступы — внутри HistoryClient.
 
-export default function HistoryPage() {
-  return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-1">История загрузок</h2>
-      <p className="text-muted-foreground">
-        Здесь появится список загруженных выписок.
-      </p>
-    </div>
-  );
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
+import HistoryClient from "@/components/HistoryClient";
+
+export default async function HistoryPage() {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: uploads } = await supabase
+    .from("uploads")
+    .select("id, file_name, bank, row_count, status, created_at")
+    .order("created_at", { ascending: false });
+
+  return <HistoryClient uploads={uploads ?? []} />;
 }

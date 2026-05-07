@@ -1,68 +1,234 @@
 "use client";
 
-import Link from "next/link";
+/*
+  Sidebar.tsx — навигационная боковая панель
+  
+  "use client" нужен потому что:
+  1. Используем хук usePathname() для определения активного пункта
+  2. Используем useState для переключения темы
+  3. Обрабатываем события (клик на logout, toggle темы)
+  
+  Тема хранится в localStorage и применяется как класс "light" на <html>.
+  По умолчанию — тёмная тема (класс не установлен).
+*/
+
 import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
-  ArrowUpFromLine,
+  Upload,
   List,
-  BarChart2,
+  PieChart,
   History,
   LogOut,
+  Sun,
+  Moon,
+  Hexagon,
 } from "lucide-react";
 
-const navItems = [
-  { href: "/dashboard", label: "Обзор", icon: LayoutDashboard },
-  { href: "/dashboard/upload", label: "Загрузить выписку", icon: ArrowUpFromLine },
-  { href: "/dashboard/transactions", label: "Транзакции", icon: List },
-  { href: "/dashboard/analytics", label: "Аналитика", icon: BarChart2 },
-  { href: "/dashboard/history", label: "История загрузок", icon: History },
+/* ---------------------------------------------------------------
+   Описание пунктов навигации
+   Добавить новый раздел — просто добавь объект в этот массив.
+   -------------------------------------------------------------- */
+const NAV_ITEMS = [
+  { href: "/dashboard",              label: "Обзор",        icon: LayoutDashboard },
+  { href: "/dashboard/upload",       label: "Загрузка",     icon: Upload          },
+  { href: "/dashboard/transactions", label: "Транзакции",   icon: List            },
+  { href: "/dashboard/analytics",    label: "Аналитика",    icon: PieChart        },
+  { href: "/dashboard/history",      label: "История",      icon: History         },
 ];
 
-export default function Sidebar({ email }: { email: string }) {
-  const pathname = usePathname();
-  const router = useRouter();
+/* Применяем тему — добавляем/убираем класс "light" на <html> */
+function applyTheme(dark: boolean) {
+  if (dark) {
+    document.documentElement.classList.remove("light");
+  } else {
+    document.documentElement.classList.add("light");
+  }
+}
 
-  const handleLogout = async () => {
+export default function Sidebar() {
+  const pathname  = usePathname();
+  const router    = useRouter();
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("theme") !== "light";
+  });
+
+  /* ---
+    Применяем сохранённую/текущую тему.
+    Это нужно чтобы тема не "мигала" при обновлении страницы.
+  --- */
+  useEffect(() => {
+    applyTheme(isDark);
+  }, [isDark]);
+
+  function toggleTheme() {
+    const next = !isDark;
+    setIsDark(next);
+    localStorage.setItem("theme", next ? "dark" : "light");
+  }
+
+  /* Выход из аккаунта — signOut() очищает сессию Supabase */
+  async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");
-    router.refresh();
-  };
+  }
+
+  /* ---
+    Определяем активный пункт:
+    - /dashboard/analytics совпадает с href "/dashboard/analytics"
+    - /dashboard (корень) — точное совпадение, иначе все были бы активными
+  --- */
+  function isActive(href: string) {
+    if (href === "/dashboard") return pathname === "/dashboard";
+    return pathname.startsWith(href);
+  }
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 border-r bg-background flex flex-col">
-      <div className="p-6 border-b">
-        <h1 className="text-lg font-semibold">Finance AI</h1>
-        <p className="text-xs text-muted-foreground mt-1 truncate">{email}</p>
+    <aside
+      style={{
+        width: "220px",
+        height: "100vh",
+        position: "sticky",
+        top: 0,
+        boxSizing: "border-box",  /* padding входит в height: 100vh */
+        overflow: "hidden",
+        background: "var(--sidebar-bg)",
+        borderRight: "0.5px solid var(--sidebar-border)",
+        display: "flex",
+        flexDirection: "column",
+        padding: "20px 12px",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        flexShrink: 0,
+      }}
+    >
+      {/* ---- Логотип ---- */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          padding: "4px 10px 20px",
+          borderBottom: "0.5px solid var(--border)",
+          marginBottom: "8px",
+        }}
+      >
+        {/* Иконка — шестиугольник с градиентом */}
+        <div
+          style={{
+            width: "30px",
+            height: "30px",
+            background: "linear-gradient(135deg, #7c3aed, #6366f1)",
+            borderRadius: "8px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            boxShadow: "0 0 12px rgba(124, 58, 237, 0.4)",
+          }}
+        >
+          <Hexagon size={16} color="white" strokeWidth={1.5} />
+        </div>
+
+        <div>
+          <div
+            style={{
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "var(--accent-light)",
+              letterSpacing: "0.01em",
+              lineHeight: 1.2,
+            }}
+          >
+            Finance AI
+          </div>
+          <div
+            style={{
+              fontSize: "10px",
+              color: "var(--text-muted)",
+              letterSpacing: "0.05em",
+            }}
+          >
+            аналитика расходов
+          </div>
+        </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
-        {navItems.map(({ href, label, icon: Icon }) => (
-          <Link
+      {/* ---- Навигация ---- */}
+      <nav style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1 }}>
+        {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
+          <a
             key={href}
             href={href}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-              pathname === href
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-            )}
+            className={`nav-link ${isActive(href) ? "active" : ""}`}
           >
-            <Icon size={16} />
+            <Icon
+              size={16}
+              strokeWidth={isActive(href) ? 2 : 1.5}
+              /* Активная иконка чуть ярче */
+              style={{ flexShrink: 0, opacity: isActive(href) ? 1 : 0.7 }}
+            />
             {label}
-          </Link>
+          </a>
         ))}
       </nav>
 
-      <div className="p-4 border-t">
+      {/* ---- Нижняя часть: тема + выход ---- */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "2px",
+          paddingTop: "12px",
+          paddingBottom: "8px",
+          borderTop: "0.5px solid var(--border)",
+          flexShrink: 0,
+        }}
+      >
+        {/* Переключатель темы */}
+        <button
+          onClick={toggleTheme}
+          className="nav-link"
+          style={{
+            width: "100%",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            textAlign: "left",
+          }}
+        >
+          {isDark ? (
+            <>
+              <Sun size={16} strokeWidth={1.5} style={{ flexShrink: 0, opacity: 0.7 }} />
+              Светлая тема
+            </>
+          ) : (
+            <>
+              <Moon size={16} strokeWidth={1.5} style={{ flexShrink: 0, opacity: 0.7 }} />
+              Тёмная тема
+            </>
+          )}
+        </button>
+
+        {/* Выход из аккаунта */}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors w-full"
+          className="nav-link"
+          style={{
+            width: "100%",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            textAlign: "left",
+            color: "var(--color-expense)",
+            opacity: 0.7,
+          }}
         >
-          <LogOut size={16} />
+          <LogOut size={16} strokeWidth={1.5} style={{ flexShrink: 0 }} />
           Выйти
         </button>
       </div>

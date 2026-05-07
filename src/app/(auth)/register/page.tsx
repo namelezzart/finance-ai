@@ -1,5 +1,8 @@
 "use client";
-
+// src/app/(auth)/register/page.tsx
+// Страница регистрации.
+// "use client" нужен потому что используем useState и обработчики событий.
+ 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -7,8 +10,15 @@ import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+ 
 export default function RegisterPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -16,54 +26,54 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-
+ 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
+ 
     if (password !== confirmPassword) {
       setError("Пароли не совпадают");
       return;
     }
-
+ 
     if (password.length < 6) {
       setError("Пароль должен быть не менее 6 символов");
       return;
     }
-
+ 
     setLoading(true);
     const supabase = createClient();
-    const { error } = await supabase.auth.signUp({ email, password });
+ 
+    const { data, error } = await supabase.auth.signUp({ email, password });
 
+      console.log("data:", data);
+      console.log("error:", error);
+ 
     if (error) {
-      setError("Ошибка регистрации. Попробуйте другой email.");
+      // Показываем реальную ошибку от Supabase — полезно для отладки
+      setError(`Ошибка: ${error.message}`);
       setLoading(false);
       return;
     }
-
-    setSuccess(true);
-    setLoading(false);
+ 
+    // Email confirm ОТКЛЮЧЁН в Supabase Dashboard (для разработки).
+    // Значит после signUp пользователь сразу активен и имеет сессию.
+    // Проверяем: если session есть — редиректим сразу на dashboard.
+    // Если session нет — значит confirm всё-таки включён, показываем сообщение.
+    if (data.session) {
+      // Сессия есть — пользователь сразу вошёл, идём в дашборд
+      router.push("/dashboard");
+      router.refresh(); // Обновляем серверные компоненты чтобы они увидели новую сессию
+    } else {
+      // Сессии нет — Supabase ждёт подтверждения email
+      setError(
+        "Проверьте почту — мы отправили письмо для подтверждения аккаунта. " +
+        "Или отключите Email Confirm в Supabase Dashboard → Authentication → Settings."
+      );
+      setLoading(false);
+    }
   };
-
-  if (success) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Проверьте почту</CardTitle>
-          <CardDescription>
-            Мы отправили письмо на {email}. Перейдите по ссылке в письме чтобы подтвердить аккаунт.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter>
-          <Link href="/login" className="w-full">
-            <Button variant="outline" className="w-full">Войти</Button>
-          </Link>
-        </CardFooter>
-      </Card>
-    );
-  }
-
+ 
   return (
     <Card>
       <CardHeader>

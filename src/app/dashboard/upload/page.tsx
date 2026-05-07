@@ -1,222 +1,300 @@
 "use client";
 
-// "use client" нужен потому что используем:
-// - useState (состояние компонента)
-// - useRouter (навигация после загрузки)
-// - обработчики событий (drag, click, change)
-// Всё это работает только в браузере, не на сервере
+/*
+  upload/page.tsx — страница загрузки CSV выписок
+  
+  "use client" — потому что здесь активный drag-and-drop,
+  useState для отслеживания файла и прогресса загрузки,
+  и fetch к нашему API /api/parse-csv.
+*/
 
-import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { Upload, FileText, CheckCircle2, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { useState, useRef, useCallback } from "react";
+import { Upload, FileText, CheckCircle, XCircle, CloudUpload, Loader2 } from "lucide-react";
 
-type UploadState = "idle" | "selected" | "uploading" | "success" | "error";
+/* Допустимые банки — для подсказки пользователю */
+const BANKS = [
+  { id: "alfa",    name: "Альфа-Банк", hint: "UTF-8, запятая" },
+  { id: "tinkoff", name: "Т-Банк",     hint: "UTF-8 BOM, точка с запятой" },
+  { id: "sber",    name: "Сбер",        hint: "Windows-1251, точка с запятой" },
+];
 
-interface ParseResult {
-  success: boolean;
-  bank: string;
-  uploadId: string;
-  count: number;
-  error?: string;
-}
-
-const BANK_NAMES: Record<string, string> = {
-  alfa: "Альфа-банк",
-  tinkoff: "Тинькофф",
-  sber: "Сбербанк",
-};
+type UploadStatus = "idle" | "dragging" | "loading" | "success" | "error";
 
 export default function UploadPage() {
-  const router = useRouter();
-  const [state, setState] = useState<UploadState>("idle");
-  const [file, setFile] = useState<File | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const [progress, setProgress] = useState(0);
-  const [result, setResult] = useState<ParseResult | null>(null);
+  const [status, setStatus]       = useState<UploadStatus>("idle");
+  const [fileName, setFileName]   = useState<string | null>(null);
+  const [resultMsg, setResultMsg] = useState<string>("");
+  const [rowCount, setRowCount]   = useState<number | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = useCallback((f: File) => {
-    if (!f.name.toLowerCase().endsWith(".csv")) {
-      setErrorMessage("Только CSV файлы");
-      setState("error");
+  /* ---
+    Обработка файла — вызывается и при drag-and-drop и при клике.
+    Отправляем FormData на /api/parse-csv, ждём ответ.
+  --- */
+  const handleFile = useCallback(async (file: File) => {
+    if (!file.name.endsWith(".csv")) {
+      setStatus("error");
+      setResultMsg("Нужен файл с расширением .csv");
       return;
     }
-    setFile(f);
-    setState("selected");
-    setErrorMessage("");
-  }, []);
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      setIsDragging(false);
-      const f = e.dataTransfer.files[0];
-      if (f) handleFile(f);
-    },
-    [handleFile]
-  );
+    setFileName(file.name);
+    setStatus("loading");
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => setIsDragging(false);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (f) handleFile(f);
-  };
-
-  const handleReset = () => {
-    setFile(null);
-    setState("idle");
-    setErrorMessage("");
-    setProgress(0);
-    setResult(null);
-  };
-
-  const handleUpload = async () => {
-    if (!file) return;
-    setState("uploading");
-    setProgress(0);
-
-    const interval = setInterval(() => {
-      setProgress((p) => (p >= 90 ? 90 : p + 15));
-    }, 300);
+    const formData = new FormData();
+    formData.append("file", file);
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
+      const res  = await fetch("/api/parse-csv", { method: "POST", body: formData });
+      const json = await res.json();
 
-      const response = await fetch("/api/parse-csv", {
-        method: "POST",
-        body: formData,
-      });
-
-      clearInterval(interval);
-      setProgress(100);
-
-      const data: ParseResult = await response.json();
-
-      if (!response.ok || data.error) {
-        setErrorMessage(data.error ?? "Неизвестная ошибка");
-        setState("error");
+      if (!res.ok) {
+        setStatus("error");
+        setResultMsg(json.error ?? "Ошибка при обработке файла");
         return;
       }
 
-      setResult(data);
-      setState("success");
+      setStatus("success");
+      setRowCount(json.rowCount ?? null);
+      setResultMsg(json.bank ? `Банк определён: ${json.bank}` : "");
     } catch {
-      clearInterval(interval);
-      setErrorMessage("Ошибка соединения с сервером");
-      setState("error");
+      setStatus("error");
+      setResultMsg("Не удалось подключиться к серверу");
     }
+  }, []);
+
+  /* Drag события */
+  const onDragOver  = (e: React.DragEvent) => { e.preventDefault(); setStatus("dragging"); };
+  const onDragLeave = ()                   => { if (status === "dragging") setStatus("idle"); };
+  const onDrop      = (e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  };
+  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFile(file);
+  };
+
+  /* Сброс формы */
+  const reset = () => {
+    setStatus("idle");
+    setFileName(null);
+    setResultMsg("");
+    setRowCount(null);
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
+  /* Цвета зоны по статусу */
+  const zoneStyle = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      border: "1.5px dashed",
+      borderRadius: "var(--radius-xl)",
+      padding: "56px 40px",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "16px",
+      cursor: "pointer",
+      transition: "all 0.2s",
+      textAlign: "center",
+      backdropFilter: "blur(16px)",
+      WebkitBackdropFilter: "blur(16px)",
+    };
+
+    if (status === "dragging") return {
+      ...base,
+      borderColor: "var(--accent-light)",
+      background:  "var(--accent-muted)",
+      transform:   "scale(1.01)",
+    };
+    if (status === "success") return {
+      ...base,
+      borderColor: "var(--color-income)",
+      background:  "var(--color-income-bg)",
+      cursor:      "default",
+    };
+    if (status === "error") return {
+      ...base,
+      borderColor: "var(--color-expense)",
+      background:  "var(--color-expense-bg)",
+      cursor:      "default",
+    };
+    return {
+      ...base,
+      borderColor: "var(--border-accent)",
+      background:  "var(--glass-bg)",
+    };
   };
 
   return (
-    <div className="max-w-xl">
-      <h2 className="text-2xl font-semibold mb-1">Загрузить выписку</h2>
-      <p className="text-muted-foreground mb-6">
-        Поддерживаются выписки Тинькофф, Сбер и Альфа-банка в формате CSV
-      </p>
+    <div style={{ padding: "28px", maxWidth: "680px" }}>
 
-      {state === "success" && result ? (
-        <Card>
-          <CardContent className="pt-6 flex flex-col items-center text-center gap-4">
-            <CheckCircle2 className="text-green-500" size={48} />
-            <div>
-              <p className="font-medium">Выписка загружена!</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {BANK_NAMES[result.bank] ?? result.bank} — {result.count} транзакций сохранено
-              </p>
-            </div>
-            <div className="flex gap-3 w-full">
-              <Button variant="outline" className="flex-1" onClick={handleReset}>
-                Загрузить ещё
-              </Button>
-              <Button className="flex-1" onClick={() => router.push("/dashboard/transactions")}>
-                Смотреть транзакции
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardContent className="pt-6 space-y-4">
-            <div
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              className={cn(
-                "border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer",
-                isDragging && "border-primary bg-primary/5",
-                state === "error"
-                  ? "border-destructive bg-destructive/5"
-                  : !isDragging && "border-muted-foreground/25 hover:border-primary/50"
-              )}
-              onClick={() => document.getElementById("file-input")?.click()}
+      {/* Заголовок */}
+      <div className="animate-fade-up" style={{ marginBottom: "28px" }}>
+        <h1 style={{
+          fontSize: "22px", fontWeight: 600,
+          color: "var(--text-primary)", margin: 0, letterSpacing: "-0.02em",
+        }}>
+          Загрузка выписки
+        </h1>
+        <p style={{ fontSize: "13px", color: "var(--text-muted)", margin: "6px 0 0" }}>
+          CSV-файл из мобильного приложения или личного кабинета банка
+        </p>
+      </div>
+
+      {/* Drag-and-drop зона */}
+      <div
+        className="animate-fade-up delay-1"
+        style={zoneStyle()}
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+        onClick={() => status === "idle" && inputRef.current?.click()}
+      >
+        {/* Скрытый input для выбора файла */}
+        <input
+          ref={inputRef}
+          type="file"
+          accept=".csv"
+          style={{ display: "none" }}
+          onChange={onInputChange}
+        />
+
+        {/* Иконка по статусу */}
+        <div style={{
+          width: "64px", height: "64px",
+          borderRadius: "20px",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: status === "success" ? "var(--color-income-bg)"
+                    : status === "error"   ? "var(--color-expense-bg)"
+                    : "var(--accent-muted)",
+          /* Пульсирующая тень при загрузке */
+          animation: status === "loading" ? "pulse 1.5s infinite" : "none",
+        }}>
+          {status === "idle"     && <CloudUpload size={28} style={{ color: "var(--accent-light)" }} />}
+          {status === "dragging" && <Upload      size={28} style={{ color: "var(--accent-light)" }} />}
+          {status === "loading"  && <Loader2     size={28} style={{ color: "var(--accent-light)", animation: "spin 1s linear infinite" }} />}
+          {status === "success"  && <CheckCircle size={28} style={{ color: "var(--color-income)" }} />}
+          {status === "error"    && <XCircle     size={28} style={{ color: "var(--color-expense)" }} />}
+        </div>
+
+        {/* Текст */}
+        {status === "idle" && <>
+          <div>
+            <p style={{ fontSize: "16px", fontWeight: 500, color: "var(--text-primary)", margin: 0 }}>
+              Перетащи файл сюда
+            </p>
+            <p style={{ fontSize: "13px", color: "var(--text-secondary)", margin: "4px 0 0" }}>
+              или нажми чтобы выбрать · только .csv
+            </p>
+          </div>
+        </>}
+
+        {status === "dragging" && (
+          <p style={{ fontSize: "16px", fontWeight: 500, color: "var(--accent-light)", margin: 0 }}>
+            Отпусти файл
+          </p>
+        )}
+
+        {status === "loading" && (
+          <div>
+            <p style={{ fontSize: "15px", fontWeight: 500, color: "var(--text-primary)", margin: 0 }}>
+              Обрабатываю {fileName}
+            </p>
+            <p style={{ fontSize: "13px", color: "var(--text-muted)", margin: "4px 0 0" }}>
+              Определяю банк, парсю транзакции...
+            </p>
+          </div>
+        )}
+
+        {status === "success" && (
+          <div>
+            <p style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-income)", margin: 0 }}>
+              {rowCount !== null ? `Загружено ${rowCount} транзакций` : "Файл загружен"}
+            </p>
+            <p style={{ fontSize: "13px", color: "var(--text-secondary)", margin: "4px 0 0" }}>
+              {fileName} · {resultMsg}
+            </p>
+          </div>
+        )}
+
+        {status === "error" && (
+          <div>
+            <p style={{ fontSize: "15px", fontWeight: 500, color: "var(--color-expense)", margin: 0 }}>
+              Ошибка загрузки
+            </p>
+            <p style={{ fontSize: "13px", color: "var(--text-muted)", margin: "4px 0 0" }}>
+              {resultMsg}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Кнопки после результата */}
+      {(status === "success" || status === "error") && (
+        <div className="animate-fade-up" style={{ display: "flex", gap: "10px", marginTop: "16px" }}>
+          <button onClick={reset} className="btn-accent">
+            Загрузить ещё один файл
+          </button>
+          {status === "success" && (
+            <a
+              href="/dashboard/transactions"
+              style={{
+                padding: "8px 16px", borderRadius: "var(--radius-md)",
+                border: "0.5px solid var(--border-accent)",
+                color: "var(--accent-light)", fontSize: "13px",
+                textDecoration: "none", display: "inline-flex", alignItems: "center",
+                background: "var(--accent-subtle)",
+              }}
             >
-              <input
-                id="file-input"
-                type="file"
-                accept=".csv"
-                className="hidden"
-                onChange={handleInputChange}
-              />
-
-              {(state === "idle" || state === "error") && (
-                <div className="flex flex-col items-center gap-3">
-                  <Upload size={32} className={state === "error" ? "text-destructive" : "text-muted-foreground"} />
-                  <div>
-                    <p className="font-medium text-sm">Перетащите файл сюда или нажмите для выбора</p>
-                    <p className="text-xs text-muted-foreground mt-1">Только .csv файлы</p>
-                  </div>
-                  {state === "error" && <p className="text-sm text-destructive">{errorMessage}</p>}
-                </div>
-              )}
-
-              {state === "selected" && (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <FileText size={24} className="text-primary" />
-                    <div className="text-left">
-                      <p className="text-sm font-medium">{file?.name}</p>
-                      <p className="text-xs text-muted-foreground">{file ? (file.size / 1024).toFixed(1) : 0} KB</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleReset(); }}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              )}
-
-              {state === "uploading" && (
-                <div className="flex flex-col items-center gap-3">
-                  <FileText size={32} className="text-primary" />
-                  <p className="text-sm font-medium">Обрабатываем файл...</p>
-                  <div className="w-full bg-muted rounded-full h-1.5">
-                    <div className="bg-primary h-1.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
-                  </div>
-                  <p className="text-xs text-muted-foreground">{progress}%</p>
-                </div>
-              )}
-            </div>
-
-            {state === "selected" && (
-              <Button className="w-full" onClick={handleUpload}>
-                Загрузить и обработать
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+              Смотреть транзакции →
+            </a>
+          )}
+        </div>
       )}
+
+      {/* Подсказки по форматам банков */}
+      <div className="animate-fade-up delay-2" style={{ marginTop: "28px" }}>
+        <p style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "10px" }}>
+          Поддерживаемые банки
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {BANKS.map((bank) => (
+            <div
+              key={bank.id}
+              className="glass-card"
+              style={{
+                padding: "12px 16px",
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{
+                  width: "28px", height: "28px", borderRadius: "8px",
+                  background: "var(--accent-muted)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <FileText size={14} style={{ color: "var(--accent-light)" }} />
+                </div>
+                <span style={{ fontSize: "13px", fontWeight: 500, color: "var(--text-primary)" }}>
+                  {bank.name}
+                </span>
+              </div>
+              <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+                {bank.hint}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Встроенные keyframes для spin и pulse */}
+      <style>{`
+        @keyframes spin  { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(124,58,237,0.3); } 50% { box-shadow: 0 0 0 12px rgba(124,58,237,0); } }
+      `}</style>
     </div>
   );
 }

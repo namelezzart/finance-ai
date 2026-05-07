@@ -1,130 +1,288 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+/* =============================================================
+   Finance AI — глобальные стили
+   Подход: CSS-переменные для всей цветовой системы.
+   Это позволяет переключать dark/light одним классом на <html>.
+   ============================================================= */
 
-@custom-variant dark (&:is(.dark *));
+/*
+  @import ОБЯЗАТЕЛЬНО должен стоять до любых других правил.
+  Это требование CSS-спецификации — PostCSS/Turbopack строго следит за этим.
+  Поэтому шрифты подключаем самой первой строкой.
+*/
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap');
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* ---------------------------------------------------------------
+   CSS-переменные — тёмная тема (по умолчанию)
+   Glassmorphism строится на полупрозрачных слоях поверх градиента.
+   -------------------------------------------------------------- */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Базовый фиолетовый акцент */
+  --accent:           #7c3aed;
+  --accent-hover:     #6d28d9;
+  --accent-light:     #a78bfa;
+  --accent-muted:     rgba(124, 58, 237, 0.15);
+  --accent-subtle:    rgba(124, 58, 237, 0.07);
+
+  /* Фоны (тёмная) */
+  --bg-base:          #080810;
+  --bg-surface:       rgba(255, 255, 255, 0.04);
+  --bg-surface-hover: rgba(255, 255, 255, 0.07);
+  --bg-elevated:      rgba(255, 255, 255, 0.06);
+
+  /* Стекло (glassmorphism) */
+  --glass-bg:         rgba(18, 14, 40, 0.6);
+  --glass-border:     rgba(255, 255, 255, 0.09);
+  --glass-blur:       blur(16px);
+
+  /* Текст */
+  --text-primary:     #ede9ff;
+  --text-secondary:   #9490b8;
+  --text-muted:       #5e5a7a;
+
+  /* Границы */
+  --border:           rgba(255, 255, 255, 0.08);
+  --border-accent:    rgba(124, 58, 237, 0.3);
+
+  /* Sidebar */
+  --sidebar-bg:       rgba(8, 6, 20, 0.95);
+  --sidebar-border:   rgba(124, 58, 237, 0.18);
+  --nav-active-bg:    rgba(124, 58, 237, 0.2);
+  --nav-active-text:  #c4b5fd;
+  --nav-text:         #6d6a90;
+  --nav-hover-bg:     rgba(124, 58, 237, 0.1);
+
+  /* Семантические цвета */
+  --color-income:     #34d399;
+  --color-expense:    #f87171;
+  --color-income-bg:  rgba(52, 211, 153, 0.12);
+  --color-expense-bg: rgba(248, 113, 113, 0.12);
+
+  /* Градиент фона страницы */
+  --page-gradient:    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124, 58, 237, 0.2) 0%, transparent 60%),
+                      radial-gradient(ellipse 40% 40% at 90% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                      #080810;
+
+  /* Радиус скругления */
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-xl:  18px;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+/* ---------------------------------------------------------------
+   Светлая тема — переключается классом .light на <html>
+   -------------------------------------------------------------- */
+.light {
+  --bg-base:          #f5f3ff;
+  --bg-surface:       rgba(255, 255, 255, 0.8);
+  --bg-surface-hover: rgba(255, 255, 255, 0.95);
+  --bg-elevated:      rgba(255, 255, 255, 0.9);
+
+  --glass-bg:         rgba(255, 255, 255, 0.65);
+  --glass-border:     rgba(124, 58, 237, 0.12);
+
+  --text-primary:     #1a1433;
+  --text-secondary:   #6b5f9e;
+  --text-muted:       #a89ec8;
+
+  --border:           rgba(124, 58, 237, 0.1);
+  --border-accent:    rgba(124, 58, 237, 0.25);
+
+  --sidebar-bg:       rgba(250, 248, 255, 0.98);
+  --sidebar-border:   rgba(124, 58, 237, 0.12);
+  --nav-active-bg:    rgba(124, 58, 237, 0.12);
+  --nav-active-text:  #6d28d9;
+  --nav-text:         #8b80b8;
+  --nav-hover-bg:     rgba(124, 58, 237, 0.07);
+
+  --color-income:     #059669;
+  --color-expense:    #dc2626;
+  --color-income-bg:  rgba(5, 150, 105, 0.1);
+  --color-expense-bg: rgba(220, 38, 38, 0.08);
+
+  --page-gradient:    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124, 58, 237, 0.12) 0%, transparent 60%),
+                      radial-gradient(ellipse 40% 40% at 90% 80%, rgba(99, 102, 241, 0.07) 0%, transparent 50%),
+                      #f5f3ff;
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
+/* ---------------------------------------------------------------
+   Базовые стили — применяем переменные к реальным элементам
+   -------------------------------------------------------------- */
+html, body {
+  font-family: 'Geist', 'Geist Sans', system-ui, sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  transition: background 0.3s, color 0.3s;
+  -webkit-font-smoothing: antialiased;
+  /* Запрещаем скролл на уровне страницы — скролл только внутри <main> */
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------
+   Утилитарные классы для glassmorphism
+   Использование: className="glass-card"
+   -------------------------------------------------------------- */
+@layer components {
+  /* Основная стеклянная карточка */
+  .glass-card {
+    background: var(--glass-bg);
+    border: 0.5px solid var(--glass-border);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-radius: var(--radius-lg);
+    transition: border-color 0.2s, background 0.2s;
   }
-  body {
-    @apply bg-background text-foreground;
+
+  .glass-card:hover {
+    border-color: var(--border-accent);
   }
-  html {
-    @apply font-sans;
+
+  /* Карточка метрики на дашборде */
+  .metric-card {
+    background: var(--glass-bg);
+    border: 0.5px solid var(--glass-border);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .metric-card::before {
+    /* Декоративный градиентный блик сверху */
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  }
+
+  /* Навигационный пункт в сайдбаре */
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--radius-md);
+    color: var(--nav-text);
+    font-size: 13.5px;
+    font-weight: 400;
+    transition: background 0.15s, color 0.15s;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .nav-link:hover {
+    background: var(--nav-hover-bg);
+    color: var(--text-primary);
+  }
+
+  .nav-link.active {
+    background: var(--nav-active-bg);
+    color: var(--nav-active-text);
+    font-weight: 500;
+  }
+
+  /* Badge категории транзакции */
+  .badge-category {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* Кнопка с акцентным градиентом */
+  .btn-accent {
+    background: linear-gradient(135deg, var(--accent), #6366f1);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  .btn-accent:hover {
+    opacity: 0.9;
+  }
+
+  .btn-accent:active {
+    transform: scale(0.98);
+  }
+
+  /* Сумма — расход */
+  .amount-expense {
+    color: var(--color-expense);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Сумма — доход */
+  .amount-income {
+    color: var(--color-income);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
   }
 }
+
+/* ---------------------------------------------------------------
+   Фон страницы с градиентом
+   Применяется к wrapper'у, не к body, чтобы не конфликтовать
+   -------------------------------------------------------------- */
+.page-bg {
+  background: var(--page-gradient);
+  min-height: 100vh;
+}
+
+/* ---------------------------------------------------------------
+   Скроллбар — делаем тонким и в тему
+   -------------------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-accent);
+  border-radius: 4px;
+}
+
+/* ---------------------------------------------------------------
+   Анимация появления (используем в компонентах)
+   -------------------------------------------------------------- */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s ease both;
+}
+
+/* Задержки для stagger-анимации карточек */
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.1s; }
+.delay-3 { animation-delay: 0.15s; }
+.delay-4 { animation-delay: 0.2s; }
