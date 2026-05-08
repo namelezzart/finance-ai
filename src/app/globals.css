@@ -235,6 +235,394 @@ html, body {
     font-weight: 500;
     font-variant-numeric: tabular-nums;
   }
+
+  /* ---------------------------------------------------------------
+     Адаптивные сетки
+     -------------------------------------------------------------- */
+
+  /* 4 колонки метрик на дашборде */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  /* Двухколоночная секция (категории + транзакции, графики) */
+  .two-col-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 16px;
+  }
+
+  /* Графики аналитики */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 16px;
+  }
+
+  /* Строка таблицы транзакций: дата | описание | категория | банк | сумма */
+  .tx-grid {
+    display: grid;
+    grid-template-columns: 100px 1fr 140px 90px 90px;
+    padding: 10px 16px;
+    gap: 12px;
+    align-items: center;
+  }
+
+  /* Строка таблицы истории: файл | банк | строк | статус | дата | удалить */
+  .history-grid {
+    display: grid;
+    grid-template-columns: 1fr 120px 80px 80px 130px 44px;
+    padding: 10px 16px;
+    gap: 12px;
+    align-items: center;
+  }
+
+  /* Отступы страниц (адаптируются на мобильном) */
+  .responsive-padding {
+    padding: 28px;
+  }
+
+  /* Мобильная нижняя навигация (скрыта на десктопе) */
+  .mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: var(--sidebar-bg);
+    border-top: 0.5px solid var(--sidebar-border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 100;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 8px;
+  }
+
+  /* ---------------------------------------------------------------
+     Медиазапросы — мобильный (<768px)
+     -------------------------------------------------------------- */
+  @media (max-width: 767px) {
+    /* Скрываем десктопный сайдбар */
+    .desktop-sidebar {
+      display: none !important;
+    }
+
+    /* Показываем нижнюю навигацию */
+    .mobile-nav {
+      display: flex;
+    }
+
+    /* Метрики 2 колонки */
+    .metrics-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* Двухколоночные секции — в одну */
+    .two-col-grid,
+    .charts-grid {
+      grid-template-columns: 1fr;
+    }
+
+    /* Таблица транзакций — только дата, описание, сумма */
+    .tx-grid {
+      grid-template-columns: 80px 1fr 90px;
+      padding: 10px 12px;
+    }
+    .tx-col-category,
+    .tx-col-bank {
+      display: none;
+    }
+
+    /* Таблица истории — только файл, статус, кнопка удаления */
+    .history-grid {
+      grid-template-columns: 1fr 80px 44px;
+      padding: 10px 12px;
+    }
+    .history-col-bank,
+    .history-col-rows,
+    .history-col-date {
+      display: none;
+    }
+
+    /* Отступы с учётом нижней навигации */
+    .responsive-padding {
+      padding: 16px 16px 76px;
+    }
+  }
+
+  .auth-shell {
+    height: 100vh;
+    min-height: 100vh;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .auth-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text-primary);
+  }
+
+  .auth-brand-mark,
+  .auth-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--accent), #6366f1);
+    color: white;
+    box-shadow: 0 0 18px rgba(124, 58, 237, 0.32);
+  }
+
+  .auth-brand-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+  }
+
+  .auth-brand-title,
+  .auth-brand-subtitle {
+    display: block;
+    line-height: 1.15;
+  }
+
+  .auth-brand-title {
+    color: var(--accent-light);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .auth-brand-subtitle {
+    color: var(--text-muted);
+    font-size: 10px;
+    letter-spacing: 0.05em;
+  }
+
+  .auth-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 12px;
+    border: 0.5px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    background: var(--glass-bg);
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+
+  .auth-theme-toggle:hover {
+    background: var(--bg-surface-hover);
+    border-color: var(--border-accent);
+    color: var(--text-primary);
+  }
+
+  .auth-main {
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 24px 20px;
+  }
+
+  .auth-panel {
+    width: min(100%, 430px);
+    padding: 24px;
+    background: var(--glass-bg);
+    border: 0.5px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.18);
+  }
+
+  .auth-window-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .auth-mode-switch {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    margin: 22px 0 20px;
+    padding: 4px;
+    border: 0.5px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+  }
+
+  .auth-mode-link {
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0.5px solid transparent;
+    border-radius: calc(var(--radius-md) - 2px);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+
+  .auth-mode-link:hover {
+    color: var(--text-primary);
+    background: var(--accent-subtle);
+  }
+
+  .auth-mode-link.active {
+    background: linear-gradient(135deg, var(--accent), #6366f1);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: white;
+    box-shadow: 0 8px 22px rgba(124, 58, 237, 0.22);
+  }
+
+  .auth-panel-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding-bottom: 18px;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .auth-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+    border-radius: 13px;
+  }
+
+  .auth-panel h1 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .auth-panel p {
+    margin: 6px 0 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 18px;
+  }
+
+  .auth-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .auth-field label {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .auth-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    height: 42px;
+    padding: 0 12px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    color: var(--text-muted);
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  }
+
+  .auth-input-wrap:focus-within {
+    border-color: var(--border-accent);
+    background: var(--bg-surface-hover);
+    box-shadow: 0 0 0 3px var(--accent-subtle);
+  }
+
+  .auth-input-wrap input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 14px;
+  }
+
+  .auth-input-wrap input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .auth-error {
+    margin: 0 !important;
+    padding: 10px 12px;
+    border: 0.5px solid rgba(248, 113, 113, 0.28);
+    border-radius: var(--radius-md);
+    background: var(--color-expense-bg);
+    color: var(--color-expense) !important;
+    font-size: 13px !important;
+  }
+
+  .auth-submit {
+    width: 100%;
+    height: 42px;
+    margin-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .auth-submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+    transform: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .auth-brand-subtitle {
+    display: none;
+  }
+
+  .auth-theme-toggle {
+    width: 36px;
+    padding: 0;
+  }
+
+  .auth-theme-toggle span {
+    display: none;
+  }
+
+  .auth-main {
+    padding: 16px 14px;
+  }
+
+  .auth-panel {
+    padding: 18px;
+  }
 }
 
 /* ---------------------------------------------------------------
@@ -287,120 +675,3 @@ html, body {
 .delay-3 { animation-delay: 0.15s; }
 .delay-4 { animation-delay: 0.2s; }
 
-/* ---------------------------------------------------------------
-   Адаптивные сетки
-   -------------------------------------------------------------- */
-
-/* 4 колонки метрик на дашборде */
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-}
-
-/* Двухколоночная секция (категории + транзакции, графики) */
-.two-col-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 16px;
-}
-
-/* Графики аналитики */
-.charts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 16px;
-}
-
-/* Строка таблицы транзакций: дата | описание | категория | банк | сумма */
-.tx-grid {
-  display: grid;
-  grid-template-columns: 100px 1fr 140px 90px 90px;
-  padding: 10px 16px;
-  gap: 12px;
-  align-items: center;
-}
-
-/* Строка таблицы истории: файл | банк | строк | статус | дата | удалить */
-.history-grid {
-  display: grid;
-  grid-template-columns: 1fr 120px 80px 80px 130px 44px;
-  padding: 10px 16px;
-  gap: 12px;
-  align-items: center;
-}
-
-/* Отступы страниц (адаптируются на мобильном) */
-.responsive-padding {
-  padding: 28px;
-}
-
-/* Мобильная нижняя навигация (скрыта на десктопе) */
-.mobile-nav {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  background: var(--sidebar-bg);
-  border-top: 0.5px solid var(--sidebar-border);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  z-index: 100;
-  align-items: center;
-  justify-content: space-around;
-  padding: 0 8px;
-}
-
-/* ---------------------------------------------------------------
-   Медиазапросы — мобильный (<768px)
-   -------------------------------------------------------------- */
-@media (max-width: 767px) {
-  /* Скрываем десктопный сайдбар */
-  .desktop-sidebar {
-    display: none !important;
-  }
-
-  /* Показываем нижнюю навигацию */
-  .mobile-nav {
-    display: flex;
-  }
-
-  /* Метрики 2 колонки */
-  .metrics-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  /* Двухколоночные секции — в одну */
-  .two-col-grid,
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
-
-  /* Таблица транзакций — только дата, описание, сумма */
-  .tx-grid {
-    grid-template-columns: 80px 1fr 90px;
-    padding: 10px 12px;
-  }
-  .tx-col-category,
-  .tx-col-bank {
-    display: none;
-  }
-
-  /* Таблица истории — только файл, статус, кнопка удаления */
-  .history-grid {
-    grid-template-columns: 1fr 80px 44px;
-    padding: 10px 12px;
-  }
-  .history-col-bank,
-  .history-col-rows,
-  .history-col-date {
-    display: none;
-  }
-
-  /* Отступы с учётом нижней навигации */
-  .responsive-padding {
-    padding: 16px 16px 76px;
-  }
-}
