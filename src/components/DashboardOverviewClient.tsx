@@ -91,8 +91,8 @@ export default function DashboardOverviewClient({
 
   return (
     <div
+      className="responsive-padding"
       style={{
-        padding: "28px 28px 40px",
         display: "flex",
         flexDirection: "column",
         gap: "20px",
@@ -103,7 +103,7 @@ export default function DashboardOverviewClient({
       {/* ---- Заголовок страницы ---- */}
       <div
         className="animate-fade-up"
-        style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}
+        style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}
       >
         <div>
           <h1
@@ -172,13 +172,7 @@ export default function DashboardOverviewClient({
 
       {/* ---- Карточки метрик (4 штуки в ряд) ---- */}
       {!isEmpty && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-            gap: "12px",
-          }}
-        >
+        <div className="metrics-grid">
           {/* Расходы */}
           <MetricCard
             label="Расходы"
@@ -223,13 +217,7 @@ export default function DashboardOverviewClient({
 
       {/* ---- Нижняя часть: топ категорий + последние транзакции ---- */}
       {!isEmpty && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1.4fr",
-            gap: "16px",
-          }}
-        >
+        <div className="two-col-grid">
           {/* Топ категорий */}
           <div
             className="glass-card animate-fade-up"

@@ -219,7 +219,7 @@ export default function AnalyticsClient({ transactions }: Props) {
   const hasData = transactions.length > 0;
 
   return (
-    <div style={{ padding: "28px", display: "flex", flexDirection: "column", gap: "20px" }}>
+    <div className="responsive-padding" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
       <div className="animate-fade-up">
         <h1 style={{ fontSize: "22px", fontWeight: 600, color: "var(--text-primary)", margin: 0, letterSpacing: "-0.02em" }}>
@@ -241,7 +241,7 @@ export default function AnalyticsClient({ transactions }: Props) {
 
       {hasData && (
         <>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: "16px" }}>
+          <div className="charts-grid">
 
             <div className="glass-card animate-fade-up delay-1" style={{ padding: "20px" }}>
               <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "16px" }}>
