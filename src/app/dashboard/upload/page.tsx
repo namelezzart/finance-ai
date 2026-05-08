@@ -129,7 +129,7 @@ export default function UploadPage() {
   };
 
   return (
-    <div style={{ padding: "28px", maxWidth: "680px" }}>
+    <div className="responsive-padding" style={{ maxWidth: "680px" }}>
 
       {/* Заголовок */}
       <div className="animate-fade-up" style={{ marginBottom: "28px" }}>

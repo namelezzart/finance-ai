@@ -174,10 +174,10 @@ export default function TransactionsClient({ transactions }: Props) {
   };
 
   return (
-    <div style={{ padding: "28px", display: "flex", flexDirection: "column", gap: "16px" }}>
+    <div className="responsive-padding" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
 
       {/* Заголовок + карточки метрик */}
-      <div className="animate-fade-up" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "20px" }}>
+      <div className="animate-fade-up" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
         <div>
           <h1 style={{ fontSize: "22px", fontWeight: 600, color: "var(--text-primary)", margin: 0, letterSpacing: "-0.02em" }}>
             Транзакции
@@ -290,13 +290,7 @@ export default function TransactionsClient({ transactions }: Props) {
       {/* Таблица */}
       <div className="glass-card animate-fade-up delay-2" style={{ overflow: "hidden" }}>
         {/* Шапка */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "100px 1fr 140px 90px 90px",
-          padding: "10px 16px",
-          borderBottom: "0.5px solid var(--border)",
-          gap: "12px",
-        }}>
+        <div className="tx-grid" style={{ borderBottom: "0.5px solid var(--border)" }}>
           {/* Дата с сортировкой */}
           <button
             onClick={() => setSortDir(sortDir === "desc" ? "asc" : "desc")}
@@ -309,11 +303,10 @@ export default function TransactionsClient({ transactions }: Props) {
           >
             Дата <ArrowUpDown size={11} />
           </button>
-          {["Описание", "Категория", "Банк", "Сумма"].map((h) => (
-            <div key={h} style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-              {h}
-            </div>
-          ))}
+          <div style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Описание</div>
+          <div className="tx-col-category" style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Категория</div>
+          <div className="tx-col-bank" style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Банк</div>
+          <div style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Сумма</div>
         </div>
 
         {/* Строки */}
@@ -329,12 +322,8 @@ export default function TransactionsClient({ transactions }: Props) {
             return (
               <div
                 key={tx.id}
+                className="tx-grid"
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "100px 1fr 140px 90px 90px",
-                  padding: "10px 16px",
-                  gap: "12px",
-                  alignItems: "center",
                   borderBottom: i < paginated.length - 1 ? "0.5px solid var(--border)" : "none",
                   transition: "background 0.12s",
                   cursor: "default",
@@ -364,12 +353,12 @@ export default function TransactionsClient({ transactions }: Props) {
                 </div>
 
                 {/* Категория */}
-                <span className="badge-category" style={{ background: cat.bg, color: cat.text }}>
+                <span className="tx-col-category badge-category" style={{ background: cat.bg, color: cat.text }}>
                   {cat.label}
                 </span>
 
                 {/* Банк */}
-                <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+                <span className="tx-col-bank" style={{ fontSize: "12px", color: "var(--text-muted)" }}>
                   {BANK_LABELS[tx.bank] ?? tx.bank}
                 </span>
 

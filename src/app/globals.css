@@ -286,3 +286,121 @@ html, body {
 .delay-2 { animation-delay: 0.1s; }
 .delay-3 { animation-delay: 0.15s; }
 .delay-4 { animation-delay: 0.2s; }
+
+/* ---------------------------------------------------------------
+   Адаптивные сетки
+   -------------------------------------------------------------- */
+
+/* 4 колонки метрик на дашборде */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* Двухколоночная секция (категории + транзакции, графики) */
+.two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 16px;
+}
+
+/* Графики аналитики */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 16px;
+}
+
+/* Строка таблицы транзакций: дата | описание | категория | банк | сумма */
+.tx-grid {
+  display: grid;
+  grid-template-columns: 100px 1fr 140px 90px 90px;
+  padding: 10px 16px;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Строка таблицы истории: файл | банк | строк | статус | дата | удалить */
+.history-grid {
+  display: grid;
+  grid-template-columns: 1fr 120px 80px 80px 130px 44px;
+  padding: 10px 16px;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Отступы страниц (адаптируются на мобильном) */
+.responsive-padding {
+  padding: 28px;
+}
+
+/* Мобильная нижняя навигация (скрыта на десктопе) */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: var(--sidebar-bg);
+  border-top: 0.5px solid var(--sidebar-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 100;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px;
+}
+
+/* ---------------------------------------------------------------
+   Медиазапросы — мобильный (<768px)
+   -------------------------------------------------------------- */
+@media (max-width: 767px) {
+  /* Скрываем десктопный сайдбар */
+  .desktop-sidebar {
+    display: none !important;
+  }
+
+  /* Показываем нижнюю навигацию */
+  .mobile-nav {
+    display: flex;
+  }
+
+  /* Метрики 2 колонки */
+  .metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Двухколоночные секции — в одну */
+  .two-col-grid,
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Таблица транзакций — только дата, описание, сумма */
+  .tx-grid {
+    grid-template-columns: 80px 1fr 90px;
+    padding: 10px 12px;
+  }
+  .tx-col-category,
+  .tx-col-bank {
+    display: none;
+  }
+
+  /* Таблица истории — только файл, статус, кнопка удаления */
+  .history-grid {
+    grid-template-columns: 1fr 80px 44px;
+    padding: 10px 12px;
+  }
+  .history-col-bank,
+  .history-col-rows,
+  .history-col-date {
+    display: none;
+  }
+
+  /* Отступы с учётом нижней навигации */
+  .responsive-padding {
+    padding: 16px 16px 76px;
+  }
+}

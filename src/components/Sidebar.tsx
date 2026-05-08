@@ -88,7 +88,9 @@ export default function Sidebar() {
   }
 
   return (
+    <>
     <aside
+      className="desktop-sidebar"
       style={{
         width: "220px",
         height: "100vh",
@@ -233,5 +235,35 @@ export default function Sidebar() {
         </button>
       </div>
     </aside>
+
+    {/* ---- Мобильная нижняя навигация ---- */}
+    <nav className="mobile-nav">
+      {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
+        <a
+          key={href}
+          href={href}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "2px",
+            padding: "6px 10px",
+            borderRadius: "var(--radius-md)",
+            color: isActive(href) ? "var(--nav-active-text)" : "var(--nav-text)",
+            textDecoration: "none",
+            background: isActive(href) ? "var(--nav-active-bg)" : "none",
+            transition: "background 0.15s, color 0.15s",
+            minWidth: "52px",
+            justifyContent: "center",
+          }}
+        >
+          <Icon size={20} strokeWidth={isActive(href) ? 2 : 1.5} />
+          <span style={{ fontSize: "10px", fontWeight: isActive(href) ? 500 : 400 }}>
+            {label}
+          </span>
+        </a>
+      ))}
+    </nav>
+    </>
   );
 }

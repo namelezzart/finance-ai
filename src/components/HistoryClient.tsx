@@ -99,7 +99,7 @@ export default function HistoryClient({ uploads: initialUploads }: Props) {
   }
 
   return (
-    <div style={{ padding: "28px", display: "flex", flexDirection: "column", gap: "20px" }}>
+    <div className="responsive-padding" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
       {/* Заголовок */}
       <div className="animate-fade-up">
@@ -148,30 +148,21 @@ export default function HistoryClient({ uploads: initialUploads }: Props) {
         <div className="glass-card animate-fade-up delay-1" style={{ overflow: "hidden" }}>
 
           {/* Шапка */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 120px 80px 80px 130px 44px",
-            padding: "10px 16px",
-            borderBottom: "0.5px solid var(--border)",
-            gap: "12px",
-          }}>
-            {["Файл", "Банк", "Строк", "Статус", "Дата загрузки", ""].map((h) => (
-              <div key={h} style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                {h}
-              </div>
-            ))}
+          <div className="history-grid" style={{ borderBottom: "0.5px solid var(--border)" }}>
+            <div style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Файл</div>
+            <div className="history-col-bank" style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Банк</div>
+            <div className="history-col-rows" style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Строк</div>
+            <div style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Статус</div>
+            <div className="history-col-date" style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Дата загрузки</div>
+            <div style={{ fontSize: "11px", color: "var(--text-muted)" }} />
           </div>
 
           {/* Строки */}
           {uploads.map((upload, i) => (
             <div key={upload.id}>
               <div
+                className="history-grid"
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 120px 80px 80px 130px 44px",
-                  padding: "12px 16px",
-                  gap: "12px",
-                  alignItems: "center",
                   borderBottom: i < uploads.length - 1 ? "0.5px solid var(--border)" : "none",
                   transition: "background 0.12s",
                   opacity: deletingId === upload.id ? 0.5 : 1,
@@ -197,12 +188,12 @@ export default function HistoryClient({ uploads: initialUploads }: Props) {
                 </div>
 
                 {/* Банк */}
-                <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
+                <span className="history-col-bank" style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
                   {BANK_LABELS[upload.bank] ?? upload.bank}
                 </span>
 
                 {/* Кол-во строк */}
-                <span style={{ fontSize: "13px", color: "var(--text-secondary)", fontVariantNumeric: "tabular-nums" }}>
+                <span className="history-col-rows" style={{ fontSize: "13px", color: "var(--text-secondary)", fontVariantNumeric: "tabular-nums" }}>
                   {upload.row_count ?? "—"}
                 </span>
 
@@ -210,7 +201,7 @@ export default function HistoryClient({ uploads: initialUploads }: Props) {
                 <StatusBadge status={upload.status} />
 
                 {/* Дата */}
-                <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+                <span className="history-col-date" style={{ fontSize: "12px", color: "var(--text-muted)" }}>
                   {formatDateTime(upload.created_at)}
                 </span>
 
