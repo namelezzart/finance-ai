@@ -26,10 +26,12 @@ export default function DashboardLayout({
       <Sidebar />
 
       <main
+        className="dashboard-main"
         style={{
           flex: 1,
           minWidth: 0,
           overflowY: "auto",  /* Скролл только здесь — sidebar не трогается */
+          overflowX: "hidden", /* Никакого горизонтального свайпа */
           height: "100vh",
         }}
       >

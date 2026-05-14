@@ -10,12 +10,15 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-export async function DELETE(req: NextRequest, { params }: RouteParams) {
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export async function DELETE(_req: NextRequest, { params }: RouteParams) {
   // В Next.js 16 params — это Promise, нужно await
   const { id } = await params;
 
-  if (!id) {
-    return NextResponse.json({ error: "ID не указан" }, { status: 400 });
+  if (!UUID_RE.test(id)) {
+    return NextResponse.json({ error: "Некорректный ID" }, { status: 400 });
   }
 
   // Создаём серверный клиент Supabase (имеет доступ к cookies → сессии)
@@ -45,7 +48,7 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
   if (txError) {
     console.error("Ошибка удаления транзакций:", txError);
     return NextResponse.json(
-      { error: `Ошибка удаления транзакций: ${txError.message}` },
+      { error: "Ошибка удаления транзакций" },
       { status: 500 }
     );
   }
@@ -61,7 +64,7 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
   if (uploadError) {
     console.error("Ошибка удаления upload:", uploadError);
     return NextResponse.json(
-      { error: `Ошибка удаления: ${uploadError.message}` },
+      { error: "Ошибка удаления загрузки" },
       { status: 500 }
     );
   }

@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude code — локальные конфиги не коммитим, агенты — коммитим
+.claude/*
+!.claude/agents/

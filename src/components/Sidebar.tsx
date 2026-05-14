@@ -9,12 +9,19 @@
   3. Обрабатываем события (клик на logout, toggle темы)
   
   Тема хранится в localStorage и применяется как класс "light" на <html>.
-  По умолчанию — тёмная тема (класс не установлен).
+  Первый рендер всегда тёмный, чтобы SSR и гидратация совпадали.
 */
 
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { createClient } from "@/utils/supabase/client";
+import {
+  applyTheme,
+  getServerTheme,
+  getStoredTheme,
+  subscribeToTheme,
+  toggleStoredTheme,
+} from "@/lib/theme";
 import {
   LayoutDashboard,
   Upload,
@@ -39,35 +46,26 @@ const NAV_ITEMS = [
   { href: "/dashboard/history",      label: "История",      icon: History         },
 ];
 
-/* Применяем тему — добавляем/убираем класс "light" на <html> */
-function applyTheme(dark: boolean) {
-  if (dark) {
-    document.documentElement.classList.remove("light");
-  } else {
-    document.documentElement.classList.add("light");
-  }
-}
-
 export default function Sidebar() {
   const pathname  = usePathname();
   const router    = useRouter();
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window === "undefined") return true;
-    return localStorage.getItem("theme") !== "light";
-  });
+  const theme = useSyncExternalStore(
+    subscribeToTheme,
+    getStoredTheme,
+    getServerTheme,
+  );
+  const isDark = theme === "dark";
 
   /* ---
-    Применяем сохранённую/текущую тему.
-    Это нужно чтобы тема не "мигала" при обновлении страницы.
+    Серверный snapshot всегда тёмный, поэтому SSR и гидратация совпадают.
+    После гидратации React читает localStorage и применяет сохранённую тему.
   --- */
   useEffect(() => {
-    applyTheme(isDark);
-  }, [isDark]);
+    applyTheme(theme);
+  }, [theme]);
 
   function toggleTheme() {
-    const next = !isDark;
-    setIsDark(next);
-    localStorage.setItem("theme", next ? "dark" : "light");
+    toggleStoredTheme(theme);
   }
 
   /* Выход из аккаунта — signOut() очищает сессию Supabase */
@@ -89,6 +87,34 @@ export default function Sidebar() {
 
   return (
     <>
+    {/* ---- Мобильный верхний бар: бренд + тема + выход ---- */}
+    <header className="mobile-header">
+      <div className="mobile-header-brand">
+        <div className="mobile-header-icon">
+          <Hexagon size={14} color="white" strokeWidth={1.5} />
+        </div>
+        <span>Finance AI</span>
+      </div>
+
+      <div className="mobile-header-actions">
+        <button
+          onClick={toggleTheme}
+          className="mobile-header-button"
+          aria-label={isDark ? "Включить светлую тему" : "Включить тёмную тему"}
+        >
+          {isDark ? <Sun size={18} strokeWidth={1.5} /> : <Moon size={18} strokeWidth={1.5} />}
+        </button>
+        <button
+          onClick={handleLogout}
+          className="mobile-header-button"
+          aria-label="Выйти"
+          style={{ color: "var(--color-expense)" }}
+        >
+          <LogOut size={18} strokeWidth={1.5} />
+        </button>
+      </div>
+    </header>
+
     <aside
       className="desktop-sidebar"
       style={{

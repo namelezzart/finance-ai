@@ -4,19 +4,116 @@
 // GROQ_API_KEY никогда не покидает сервер — это важно для безопасности.
 
 import { createClient } from "@/utils/supabase/server";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-// Структура агрегированных данных которые клиент пришлёт в теле запроса
-interface AnalyzePayload {
-  totalExpenses: number;
-  totalIncome: number;
-  // value — название поля в pieData которое формирует AnalyticsClient
-  topCategories: { name: string; value: number }[];
-  monthlyData: { month: string; expenses: number; income: number }[];
-  period: string; // например "январь 2026 — май 2026"
+interface TransactionRow {
+  date: string;
+  amount: number | string;
+  category: string | null;
 }
 
-export async function POST(req: NextRequest) {
+const CAT_LABELS: Record<string, string> = {
+  food_groceries:          "Продукты",
+  food_restaurants:        "Рестораны",
+  transport_public:        "Транспорт",
+  transport_taxi:          "Такси",
+  transport_fuel:          "Топливо",
+  housing_utilities:       "Коммуналка",
+  housing_rent:            "Аренда",
+  health_pharmacy:         "Аптека",
+  health_services:         "Здоровье",
+  entertainment_streaming: "Стриминг",
+  entertainment_leisure:   "Досуг",
+  shopping_clothes:        "Одежда",
+  shopping_electronics:    "Электроника",
+  shopping_other:          "Покупки",
+  education:               "Учёба",
+  travel:                  "Путешествия",
+  transfers:               "Переводы",
+  income:                  "Доход",
+  other:                   "Прочее",
+};
+
+function formatRub(value: number): string {
+  return value.toLocaleString("ru-RU");
+}
+
+function formatMonth(isoDate: string): string {
+  return new Date(`${isoDate}T00:00:00`).toLocaleDateString("ru-RU", {
+    month: "short",
+    year: "2-digit",
+  });
+}
+
+function formatPeriod(firstDate: string, lastDate: string): string {
+  const formatDate = (date: string) =>
+    new Date(`${date}T00:00:00`).toLocaleDateString("ru-RU", {
+      month: "long",
+      year: "numeric",
+    });
+
+  return `${formatDate(firstDate)} — ${formatDate(lastDate)}`;
+}
+
+function buildFinancialSummary(transactions: TransactionRow[]) {
+  const categoryMap: Record<string, number> = {};
+  const monthlyMap: Record<string, { month: string; expenses: number; income: number }> = {};
+
+  let totalExpenses = 0;
+  let totalIncome = 0;
+
+  for (const transaction of transactions) {
+    const amount = Number(transaction.amount);
+    if (!Number.isFinite(amount)) continue;
+
+    const monthKey = transaction.date.slice(0, 7);
+    monthlyMap[monthKey] ??= {
+      month: formatMonth(transaction.date),
+      expenses: 0,
+      income: 0,
+    };
+
+    if (amount < 0) {
+      const expense = Math.abs(amount);
+      const category = transaction.category ?? "other";
+      totalExpenses += expense;
+      categoryMap[category] = (categoryMap[category] ?? 0) + expense;
+      monthlyMap[monthKey].expenses += expense;
+    } else {
+      totalIncome += amount;
+      monthlyMap[monthKey].income += amount;
+    }
+  }
+
+  const sortedCategories = Object.entries(categoryMap).sort(([, a], [, b]) => b - a);
+  const topCategories = sortedCategories.slice(0, 8).map(([category, value]) => ({
+    name: CAT_LABELS[category] ?? category,
+    value: Math.round(value),
+  }));
+
+  const rest = sortedCategories.slice(8).reduce((sum, [, value]) => sum + value, 0);
+  if (rest > 0) {
+    topCategories.push({ name: "Прочее", value: Math.round(rest) });
+  }
+
+  const monthlyData = Object.entries(monthlyMap)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([, value]) => ({
+      month: value.month,
+      expenses: Math.round(value.expenses),
+      income: Math.round(value.income),
+    }));
+
+  return {
+    totalExpenses: Math.round(totalExpenses),
+    totalIncome: Math.round(totalIncome),
+    topCategories,
+    monthlyData,
+    period: formatPeriod(transactions[0].date, transactions[transactions.length - 1].date),
+  };
+}
+
+export async function POST() {
   // Проверяем авторизацию — анализ только для залогиненных пользователей
   const supabase = await createClient();
   const {
@@ -27,12 +124,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
   }
 
-  // Читаем агрегированные данные из тела запроса
-  let payload: AnalyzePayload;
-  try {
-    payload = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Неверный формат данных" }, { status: 400 });
+  // Данные для анализа берём только с сервера.
+  // Так endpoint нельзя использовать для произвольного prompt-а за счёт нашего Groq ключа,
+  // а RLS Supabase продолжает фильтровать транзакции текущим пользователем.
+  const { data: transactions, error: transactionsError } = await supabase
+    .from("transactions")
+    .select("date, amount, category")
+    .order("date", { ascending: true })
+    .limit(1000);
+
+  if (transactionsError) {
+    console.error("Ошибка загрузки транзакций для анализа:", transactionsError);
+    return NextResponse.json(
+      { error: "Не удалось загрузить данные для анализа" },
+      { status: 500 }
+    );
+  }
+
+  if (!transactions?.length) {
+    return NextResponse.json(
+      { error: "Недостаточно данных для анализа" },
+      { status: 422 }
+    );
   }
 
   const groqKey = process.env.GROQ_API_KEY;
@@ -43,27 +156,29 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const summary = buildFinancialSummary(transactions);
+
   // Формируем промпт с реальными данными пользователя.
-  // Передаём агрегаты, а не сырые транзакции — меньше токенов, лучше качество.
-  const topCatsText = payload.topCategories
+  // Передаём агрегаты, а не сырые транзакции — меньше токенов и ниже риск утечки деталей.
+  const topCatsText = summary.topCategories
     .slice(0, 7)
-    .map((c, i) => `${i + 1}. ${c.name}: ${c.value.toLocaleString("ru-RU")} ₽`)
+    .map((c, i) => `${i + 1}. ${c.name}: ${formatRub(c.value)} ₽`)
     .join("\n");
 
-  const monthlyText = payload.monthlyData
+  const monthlyText = summary.monthlyData
     .map(
       (m) =>
-        `• ${m.month}: расходы ${m.expenses.toLocaleString("ru-RU")} ₽, доходы ${m.income.toLocaleString("ru-RU")} ₽`
+        `• ${m.month}: расходы ${formatRub(m.expenses)} ₽, доходы ${formatRub(m.income)} ₽`
     )
     .join("\n");
 
   const prompt = `Ты — персональный финансовый советник. Проанализируй расходы пользователя и дай конкретные, полезные советы на русском языке.
 
-ФИНАНСОВЫЕ ДАННЫЕ (период: ${payload.period}):
+ФИНАНСОВЫЕ ДАННЫЕ (период: ${summary.period}):
 
-Общие расходы: ${payload.totalExpenses.toLocaleString("ru-RU")} ₽
-Общие доходы: ${payload.totalIncome.toLocaleString("ru-RU")} ₽
-Баланс: ${(payload.totalIncome - payload.totalExpenses).toLocaleString("ru-RU")} ₽
+Общие расходы: ${formatRub(summary.totalExpenses)} ₽
+Общие доходы: ${formatRub(summary.totalIncome)} ₽
+Баланс: ${formatRub(summary.totalIncome - summary.totalExpenses)} ₽
 
 Топ категорий расходов:
 ${topCatsText}
@@ -108,6 +223,14 @@ ${monthlyText}
     );
   }
 
+  if (!groqResponse.body) {
+    return NextResponse.json(
+      { error: "Пустой ответ Groq API" },
+      { status: 502 }
+    );
+  }
+  const groqBody = groqResponse.body;
+
   // Groq возвращает Server-Sent Events (SSE): строки вида "data: {...}\n\n"
   // Нам нужно извлечь текст из каждого чанка и передать клиенту.
   // Создаём TransformStream — он преобразует SSE в чистый текст на лету.
@@ -117,7 +240,7 @@ ${monthlyText}
   const stream = new ReadableStream({
     async start(controller) {
       // groqResponse.body — это ReadableStream с SSE данными от Groq
-      const reader = groqResponse.body!.getReader();
+      const reader = groqBody.getReader();
       let buffer = ""; // буфер для неполных строк
 
       try {
@@ -171,10 +294,9 @@ ${monthlyText}
   return new Response(stream, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
-      // Transfer-Encoding: chunked — браузер знает что данные придут кусками
-      "Transfer-Encoding": "chunked",
       // Отключаем кэширование — каждый анализ уникален
       "Cache-Control": "no-cache",
+      "X-Content-Type-Options": "nosniff",
     },
   });
 }

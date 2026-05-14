@@ -6,6 +6,16 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { parseCSV } from "@/lib/parsers";
 
+const MAX_CSV_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_TRANSACTION_ROWS = 10_000;
+
+function sanitizeFileName(fileName: string): string {
+  return fileName
+    .replace(/[\\/\u0000-\u001F\u007F]/g, "_")
+    .trim()
+    .slice(0, 180);
+}
+
 export async function POST(req: Request) {
   // Серверный клиент Supabase — использует куки для определения пользователя
   const supabase = await createClient();
@@ -19,12 +29,36 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const contentLength = Number(req.headers.get("content-length") ?? 0);
+  if (contentLength > MAX_CSV_FILE_SIZE_BYTES + 50_000) {
+    return NextResponse.json(
+      { error: "Файл слишком большой. Максимальный размер CSV — 5 МБ" },
+      { status: 413 }
+    );
+  }
+
   // Получаем файл из FormData (браузер отправляет multipart/form-data)
   const formData = await req.formData();
   const file = formData.get("file") as File | null;
 
   if (!file) {
     return NextResponse.json({ error: "Файл не найден" }, { status: 400 });
+  }
+
+  const safeFileName = sanitizeFileName(file.name);
+
+  if (!safeFileName.toLowerCase().endsWith(".csv")) {
+    return NextResponse.json(
+      { error: "Поддерживаются только CSV-файлы" },
+      { status: 415 }
+    );
+  }
+
+  if (file.size > MAX_CSV_FILE_SIZE_BYTES) {
+    return NextResponse.json(
+      { error: "Файл слишком большой. Максимальный размер CSV — 5 МБ" },
+      { status: 413 }
+    );
   }
 
   // ─── ЗАЩИТА ОТ ПОВТОРНОЙ ЗАГРУЗКИ ──────────────────────────────────────────
@@ -35,15 +69,15 @@ export async function POST(req: Request) {
     .from("uploads")
     .select("id, created_at")
     .eq("user_id", user.id)
-    .eq("file_name", file.name)
+    .eq("file_name", safeFileName)
     .eq("status", "done") // Проверяем только успешно завершённые загрузки
-    .single();
+    .maybeSingle();
 
   if (existingUpload) {
     // Возвращаем ошибку с понятным сообщением для пользователя
     return NextResponse.json(
       {
-        error: `Файл "${file.name}" уже был загружен ранее. Если хотите перезагрузить — сначала удалите предыдущую загрузку в истории.`,
+        error: `Файл "${safeFileName}" уже был загружен ранее. Если хотите перезагрузить — сначала удалите предыдущую загрузку в истории.`,
         existingUploadId: existingUpload.id,
       },
       { status: 409 } // 409 Conflict — стандартный HTTP-статус для конфликта данных
@@ -58,7 +92,7 @@ export async function POST(req: Request) {
   // Она определяет банк по заголовкам и вызывает нужный парсер
   let parseResult;
   try {
-    parseResult = await parseCSV(buffer, file.name);
+    parseResult = await parseCSV(buffer, safeFileName);
   } catch (err) {
     console.error("Ошибка парсинга CSV:", err);
     return NextResponse.json(
@@ -81,13 +115,20 @@ export async function POST(req: Request) {
     );
   }
 
+  if (transactions.length > MAX_TRANSACTION_ROWS) {
+    return NextResponse.json(
+      { error: `Файл содержит слишком много строк. Максимум — ${MAX_TRANSACTION_ROWS}` },
+      { status: 413 }
+    );
+  }
+
   // Создаём запись об uploads со статусом 'pending'
   // Статус меняется на 'done' после успешного сохранения транзакций
   const { data: upload, error: uploadError } = await supabase
     .from("uploads")
     .insert({
       user_id: user.id,
-      file_name: file.name,
+      file_name: safeFileName,
       bank,
       row_count: transactions.length,
       status: "pending",
@@ -144,6 +185,7 @@ export async function POST(req: Request) {
   return NextResponse.json({
     uploadId: upload.id,
     bank,
+    rowCount: transactions.length,
     count: transactions.length,
   });
 }

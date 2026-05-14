@@ -1,23 +1,10 @@
 "use client";
-// src/app/(auth)/register/page.tsx
-// Страница регистрации.
-// "use client" нужен потому что используем useState и обработчики событий.
  
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ArrowRight, LockKeyhole, Mail, UserPlus } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
  
 export default function RegisterPage() {
   const router = useRouter();
@@ -45,12 +32,8 @@ export default function RegisterPage() {
     const supabase = createClient();
  
     const { data, error } = await supabase.auth.signUp({ email, password });
-
-      console.log("data:", data);
-      console.log("error:", error);
  
     if (error) {
-      // Показываем реальную ошибку от Supabase — полезно для отладки
       setError(`Ошибка: ${error.message}`);
       setLoading(false);
       return;
@@ -75,16 +58,32 @@ export default function RegisterPage() {
   };
  
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Регистрация</CardTitle>
-        <CardDescription>Создайте аккаунт Finance AI</CardDescription>
-      </CardHeader>
-      <form onSubmit={handleRegister}>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
+    <>
+      <nav className="auth-mode-switch" aria-label="Авторизация">
+        <Link href="/login" className="auth-mode-link">
+          Вход
+        </Link>
+        <Link href="/register" className="auth-mode-link active">
+          Регистрация
+        </Link>
+      </nav>
+
+      <div className="auth-panel-header">
+        <div className="auth-icon">
+          <UserPlus size={21} />
+        </div>
+        <div>
+          <h1>Регистрация</h1>
+          <p>Создайте аккаунт, чтобы сохранять выписки и историю анализа.</p>
+        </div>
+      </div>
+
+      <form onSubmit={handleRegister} className="auth-form">
+        <div className="auth-field">
+          <label htmlFor="email">Email</label>
+          <div className="auth-input-wrap">
+            <Mail size={16} />
+            <input
               id="email"
               type="email"
               placeholder="you@example.com"
@@ -93,44 +92,45 @@ export default function RegisterPage() {
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Пароль</Label>
-            <Input
+        </div>
+
+        <div className="auth-field">
+          <label htmlFor="password">Пароль</label>
+          <div className="auth-input-wrap">
+            <LockKeyhole size={16} />
+            <input
               id="password"
               type="password"
-              placeholder="••••••••"
+              placeholder="Минимум 6 символов"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Повторите пароль</Label>
-            <Input
+        </div>
+
+        <div className="auth-field">
+          <label htmlFor="confirmPassword">Повторите пароль</label>
+          <div className="auth-input-wrap">
+            <LockKeyhole size={16} />
+            <input
               id="confirmPassword"
               type="password"
-              placeholder="••••••••"
+              placeholder="Повторите пароль"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
           </div>
-          {error && (
-            <p className="text-sm text-destructive">{error}</p>
-          )}
-        </CardContent>
-        <CardFooter className="flex flex-col gap-3">
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Создаём аккаунт..." : "Зарегистрироваться"}
-          </Button>
-          <p className="text-sm text-muted-foreground text-center">
-            Уже есть аккаунт?{" "}
-            <Link href="/login" className="text-primary hover:underline">
-              Войти
-            </Link>
-          </p>
-        </CardFooter>
+        </div>
+
+        {error && <p className="auth-error">{error}</p>}
+
+        <button type="submit" className="btn-accent auth-submit" disabled={loading}>
+          {loading ? "Создаём..." : "Создать аккаунт"}
+          <ArrowRight size={15} />
+        </button>
       </form>
-    </Card>
+    </>
   );
 }

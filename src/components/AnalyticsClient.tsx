@@ -147,53 +147,17 @@ export default function AnalyticsClient({ transactions }: Props) {
   }, [transactions]);
 
   /*
-    AI-анализ — отправляем агрегаты в route.ts.
-    
-    route.ts ожидает точно такую структуру (из интерфейса AnalyzePayload):
-      totalExpenses  — с "s" на конце
-      totalIncome
-      topCategories  — [{ name, value }]
-      monthlyData    — [{ month, expenses, income }]  (не "Расходы"/"Доходы"!)
-      period         — строка с диапазоном дат
+    AI-анализ — клиент только запускает серверный route.
+    Сам route заново читает транзакции из Supabase, чтобы не доверять payload из браузера.
   */
   async function runAnalysis() {
     setAiLoading(true);
     setAiText("");
     setAiError("");
 
-    const totalExpenses = transactions
-      .filter((t) => t.amount < 0)
-      .reduce((s, t) => s + Math.abs(t.amount), 0);
-    const totalIncome = transactions
-      .filter((t) => t.amount > 0)
-      .reduce((s, t) => s + t.amount, 0);
-
-    /* Период из первой и последней даты */
-    const dates  = transactions.map((t) => t.date).sort();
-    const period = dates.length
-      ? new Date(dates[0]).toLocaleDateString("ru-RU", { month: "long", year: "numeric" }) +
-        " — " +
-        new Date(dates[dates.length - 1]).toLocaleDateString("ru-RU", { month: "long", year: "numeric" })
-      : "текущий период";
-
-    /* Конвертируем barData в формат который ждёт route */
-    const monthlyData = barData.map((m) => ({
-      month:    m.month,
-      expenses: m["\u0420\u0430\u0441\u0445\u043e\u0434\u044b"],
-      income:   m["\u0414\u043e\u0445\u043e\u0434\u044b"],
-    }));
-
     try {
       const res = await fetch("/api/analyze", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topCategories: pieData,
-          monthlyData,
-          totalExpenses: Math.round(totalExpenses),
-          totalIncome:   Math.round(totalIncome),
-          period,
-        }),
+        method: "POST",
       });
 
       if (!res.ok || !res.body) {

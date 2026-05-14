@@ -62,8 +62,8 @@ finance-ai/
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://qrukbkxxexlxpyxbkpmz.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=sb_publishable_...
-SUPABASE_SERVICE_ROLE_KEY=...
-GROQ_API_KEY=gsk_...
+SUPABASE_SERVICE_ROLE_KEY=<server-only-service-role-key>
+GROQ_API_KEY=<server-only-groq-key>
 ```
 
 ## Critical Next.js 16 Differences
@@ -176,32 +176,30 @@ export const CATEGORIES = [
 - Recharts components must be `"use client"` (uses browser APIs)
 - All comments in files are in Russian for the developer to study
 
-## Current Status
-| Step | Status |
-|------|--------|
-| create-next-app + deps | ✅ done |
-| shadcn/ui (Nova preset) | ✅ done |
-| Supabase project + schema | ✅ done |
-| .env.local configured | ✅ done |
-| Auth (login / register) | ✅ done |
-| proxy.ts (auth guard) | ✅ done |
-| Dashboard layout + sidebar | ✅ done |
-| Upload UI (drag-and-drop) | ✅ done |
-| CSV parsers (Alfa, Tinkoff, Sber) | ✅ written — needs live test |
-| API route /api/parse-csv | ✅ written — needs live test |
-| Transaction table + filters | ⏳ next |
-| Recharts dashboards | ⏳ |
-| Groq AI advice | ⏳ |
-| History page | ⏳ |
-| Vercel deploy | ⏳ |
+## Current Status — В ПРОДЕ
+Все основные фичи выкачены, приложение работает в production. Список ниже описывает реальное состояние и известные проблемы.
 
-## Immediate Next Steps
-1. Test CSV upload with Alfa file — verify /api/parse-csv works end-to-end
-2. Transactions page — table with date/category/bank filters
-3. Analytics page — Recharts (pie by category, line by month)
-4. Groq integration — spending analysis + advice in Russian
-5. History page — list of past uploads with row counts
-6. Vercel deploy
+### Готово и работает
+- Auth (login / register / logout) через Supabase
+- proxy.ts — auth guard на все защищённые роуты
+- Dashboard + sidebar (desktop) и bottom-nav + top-bar (mobile)
+- Upload UI с drag-and-drop
+- CSV парсеры (Alfa / Tinkoff / Sber) — протестированы на реальных файлах
+- API `/api/parse-csv`, `/api/analyze`, `/api/uploads/[id]`
+- Страница транзакций с фильтрами
+- Аналитика на Recharts
+- Groq AI-анализ расходов
+- История загрузок
+- Vercel deploy
+- Темы dark/light с переключателем
+- Адаптивная вёрстка под mobile
+
+### Известные проблемы / технический долг
+- ⚠️ Адаптив требует доработки — отдельные страницы могут плыть на узких экранах
+- Нет автоматических тестов (unit / e2e)
+- Bundle size не профилировался — Recharts может быть тяжёлым
+- Supabase индексы по транзакциям не добавлены, возможны медленные запросы на больших объёмах
+- Accessibility-аудит не проводился
 
 ## Notes for AI Assistants
 - Next.js version is 16, NOT 14

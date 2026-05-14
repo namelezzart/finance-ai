@@ -3,11 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ArrowRight, LockKeyhole, Mail } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,16 +32,32 @@ export default function LoginPage() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Вход</CardTitle>
-        <CardDescription>Войдите в свой аккаунт Finance AI</CardDescription>
-      </CardHeader>
-      <form onSubmit={handleLogin}>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
+    <>
+      <nav className="auth-mode-switch" aria-label="Авторизация">
+        <Link href="/login" className="auth-mode-link active">
+          Вход
+        </Link>
+        <Link href="/register" className="auth-mode-link">
+          Регистрация
+        </Link>
+      </nav>
+
+      <div className="auth-panel-header">
+        <div className="auth-icon">
+          <LockKeyhole size={21} />
+        </div>
+        <div>
+          <h1>Вход</h1>
+          <p>Продолжите работу с расходами, категориями и отчётами.</p>
+        </div>
+      </div>
+
+      <form onSubmit={handleLogin} className="auth-form">
+        <div className="auth-field">
+          <label htmlFor="email">Email</label>
+          <div className="auth-input-wrap">
+            <Mail size={16} />
+            <input
               id="email"
               type="email"
               placeholder="you@example.com"
@@ -53,33 +66,30 @@ export default function LoginPage() {
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Пароль</Label>
-            <Input
+        </div>
+
+        <div className="auth-field">
+          <label htmlFor="password">Пароль</label>
+          <div className="auth-input-wrap">
+            <LockKeyhole size={16} />
+            <input
               id="password"
               type="password"
-              placeholder="••••••••"
+              placeholder="Введите пароль"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-          {error && (
-            <p className="text-sm text-destructive">{error}</p>
-          )}
-        </CardContent>
-        <CardFooter className="flex flex-col gap-3">
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Входим..." : "Войти"}
-          </Button>
-          <p className="text-sm text-muted-foreground text-center">
-            Нет аккаунта?{" "}
-            <Link href="/register" className="text-primary hover:underline">
-              Зарегистрироваться
-            </Link>
-          </p>
-        </CardFooter>
+        </div>
+
+        {error && <p className="auth-error">{error}</p>}
+
+        <button type="submit" className="btn-accent auth-submit" disabled={loading}>
+          {loading ? "Входим..." : "Войти"}
+          <ArrowRight size={15} />
+        </button>
       </form>
-    </Card>
+    </>
   );
 }
