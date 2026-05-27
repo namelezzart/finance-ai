@@ -377,6 +377,54 @@ html, body {
   }
 
   /* ---------------------------------------------------------------
+     Адаптивные хелперы — переключаются по медиазапросам ниже
+     -------------------------------------------------------------- */
+
+  /* Шапка страницы: title слева, action справа на десктопе,
+     на мобильном — стек вертикально с растянутыми action'ами. */
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* Action в шапке — кнопка или группа кнопок */
+  .page-header-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* Пустое состояние / большая центрирующая карточка */
+  .empty-card {
+    padding: 48px 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* Row фильтров — на десктопе в ряд, на мобильном — сетка 2 колонки */
+  .filters-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* Карточки метрик в шапке (расходы/доходы на странице транзакций) */
+  .header-metrics {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  /* ---------------------------------------------------------------
      Медиазапросы — мобильный (<768px)
      -------------------------------------------------------------- */
   @media (max-width: 767px) {
@@ -396,6 +444,7 @@ html, body {
     /* Метрики 2 колонки */
     .metrics-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
     }
 
     /* Двухколоночные секции — в одну */
@@ -406,8 +455,9 @@ html, body {
 
     /* Таблица транзакций — только дата, описание, сумма */
     .tx-grid {
-      grid-template-columns: 80px 1fr 90px;
+      grid-template-columns: 70px 1fr auto;
       padding: 10px 12px;
+      gap: 8px;
     }
     .tx-col-category,
     .tx-col-bank {
@@ -416,8 +466,9 @@ html, body {
 
     /* Таблица истории — только файл, статус, кнопка удаления */
     .history-grid {
-      grid-template-columns: 1fr 80px 44px;
+      grid-template-columns: 1fr auto 36px;
       padding: 10px 12px;
+      gap: 8px;
     }
     .history-col-bank,
     .history-col-rows,
@@ -427,7 +478,7 @@ html, body {
 
     /* Отступы с учётом верхнего бара (52px) и нижней навигации (60px) */
     .responsive-padding {
-      padding: 16px 16px 16px;
+      padding: 14px 14px 24px;
     }
 
     /* Главный скролл-контейнер дашборда: контент не должен уходить под
@@ -435,6 +486,91 @@ html, body {
     .dashboard-main {
       padding-top: 52px;
       padding-bottom: 60px;
+    }
+
+    /* Шапка страницы на мобильном — стек вертикально, action на всю ширину */
+    .page-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+    }
+
+    .page-header-action {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Пустое состояние — компактнее на мобильном */
+    .empty-card {
+      padding: 32px 18px;
+    }
+
+    /* Фильтры — каждый занимает половину ширины */
+    .filters-row {
+      gap: 8px;
+    }
+    .filters-row > .filter-grow {
+      flex: 1 1 100%;
+    }
+    .filters-row > select,
+    .filters-row > input[type="date"] {
+      flex: 1 1 calc(50% - 4px);
+      min-width: 0 !important;
+    }
+
+    /* Карточки метрик в шапке транзакций — растягиваем на всю ширину строки */
+    .header-metrics {
+      width: 100%;
+      gap: 8px;
+    }
+    .header-metrics > * {
+      flex: 1 1 0;
+      min-width: 0 !important;
+      padding: 14px !important;
+    }
+
+    /* Метрик карточки в общем — меньше внутренний паддинг на мобильном */
+    .metric-card {
+      padding: 14px;
+    }
+
+    /* Drag-and-drop зона на странице загрузки — компактнее */
+    .upload-dropzone {
+      padding: 36px 18px !important;
+    }
+
+    /* Bank-hint строка — стек */
+    .bank-hint {
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 4px;
+    }
+
+    /* Inline confirmation в истории — стек */
+    .history-confirm {
+      flex-direction: column;
+      align-items: stretch !important;
+      gap: 10px !important;
+    }
+    .history-confirm-actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+
+  /* ---------------------------------------------------------------
+     Очень узкие экраны (<400px) — iPhone SE и подобные
+     -------------------------------------------------------------- */
+  @media (max-width: 399px) {
+    /* Чтобы кнопка с длинным текстом точно влезала */
+    .btn-accent {
+      padding: 10px 14px;
+      font-size: 13px;
+    }
+
+    /* Лейблы в нижней навигации скрываем — оставляем только иконки */
+    .mobile-nav a span {
+      font-size: 9px;
     }
   }
 

@@ -183,7 +183,7 @@ export default function AnalyticsClient({ transactions }: Props) {
   const hasData = transactions.length > 0;
 
   return (
-    <div className="responsive-padding" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+    <div className="responsive-padding" style={{ display: "flex", flexDirection: "column", gap: "20px", boxSizing: "border-box", width: "100%" }}>
 
       <div className="animate-fade-up">
         <h1 style={{ fontSize: "22px", fontWeight: 600, color: "var(--text-primary)", margin: 0, letterSpacing: "-0.02em" }}>
@@ -195,9 +195,9 @@ export default function AnalyticsClient({ transactions }: Props) {
       </div>
 
       {!hasData && (
-        <div className="glass-card animate-fade-up delay-1" style={{ padding: "56px", textAlign: "center" }}>
+        <div className="glass-card empty-card animate-fade-up delay-1">
           <p style={{ color: "var(--text-secondary)", margin: 0 }}>Нет данных — загрузи выписку</p>
-          <a href="/dashboard/upload" className="btn-accent" style={{ display: "inline-block", marginTop: "16px", textDecoration: "none" }}>
+          <a href="/dashboard/upload" className="btn-accent" style={{ display: "inline-block", marginTop: "8px", textDecoration: "none" }}>
             Загрузить CSV
           </a>
         </div>
@@ -259,7 +259,7 @@ export default function AnalyticsClient({ transactions }: Props) {
           </div>
 
           <div className="glass-card animate-fade-up delay-3" style={{ padding: "20px" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: aiText ? "14px" : 0 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap", marginBottom: aiText ? "14px" : 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <div style={{
                   width: "30px", height: "30px", borderRadius: "8px",

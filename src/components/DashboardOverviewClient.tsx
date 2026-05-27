@@ -98,13 +98,11 @@ export default function DashboardOverviewClient({
         gap: "20px",
         maxWidth: "1100px",
         width: "100%",
+        boxSizing: "border-box",
       }}
     >
       {/* ---- Заголовок страницы ---- */}
-      <div
-        className="animate-fade-up"
-        style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}
-      >
+      <div className="page-header animate-fade-up">
         <div>
           <h1
             style={{
@@ -124,8 +122,8 @@ export default function DashboardOverviewClient({
 
         <Link
           href="/dashboard/upload"
-          className="btn-accent"
-          style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "6px" }}
+          className="btn-accent page-header-action"
+          style={{ textDecoration: "none" }}
         >
           <Receipt size={14} />
           Загрузить выписку
@@ -134,17 +132,7 @@ export default function DashboardOverviewClient({
 
       {/* ---- Пустое состояние ---- */}
       {isEmpty && (
-        <div
-          className="glass-card animate-fade-up delay-1"
-          style={{
-            padding: "48px",
-            textAlign: "center",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "12px",
-          }}
-        >
+        <div className="glass-card empty-card animate-fade-up delay-1">
           <div
             style={{
               width: "56px",

@@ -129,7 +129,7 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="responsive-padding" style={{ maxWidth: "680px" }}>
+    <div className="responsive-padding" style={{ maxWidth: "680px", width: "100%", boxSizing: "border-box" }}>
 
       {/* Заголовок */}
       <div className="animate-fade-up" style={{ marginBottom: "28px" }}>
@@ -146,7 +146,7 @@ export default function UploadPage() {
 
       {/* Drag-and-drop зона */}
       <div
-        className="animate-fade-up delay-1"
+        className="upload-dropzone animate-fade-up delay-1"
         style={zoneStyle()}
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
@@ -264,10 +264,11 @@ export default function UploadPage() {
           {BANKS.map((bank) => (
             <div
               key={bank.id}
-              className="glass-card"
+              className="glass-card bank-hint"
               style={{
                 padding: "12px 16px",
                 display: "flex", alignItems: "center", justifyContent: "space-between",
+                gap: "12px",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>

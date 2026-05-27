@@ -99,7 +99,7 @@ export default function HistoryClient({ uploads: initialUploads }: Props) {
   }
 
   return (
-    <div className="responsive-padding" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+    <div className="responsive-padding" style={{ display: "flex", flexDirection: "column", gap: "20px", boxSizing: "border-box", width: "100%" }}>
 
       {/* Заголовок */}
       <div className="animate-fade-up">
@@ -126,7 +126,7 @@ export default function HistoryClient({ uploads: initialUploads }: Props) {
 
       {/* Пустое состояние */}
       {uploads.length === 0 && (
-        <div className="glass-card animate-fade-up delay-1" style={{ padding: "56px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+        <div className="glass-card empty-card animate-fade-up delay-1">
           <div style={{
             width: "52px", height: "52px", borderRadius: "14px",
             background: "var(--accent-muted)",
@@ -235,7 +235,7 @@ export default function HistoryClient({ uploads: initialUploads }: Props) {
 
               {/* Inline подтверждение удаления — под строкой */}
               {confirmId === upload.id && (
-                <div style={{
+                <div className="history-confirm" style={{
                   display: "flex", alignItems: "center", justifyContent: "space-between",
                   padding: "10px 16px",
                   background: "var(--color-expense-bg)",
@@ -245,7 +245,7 @@ export default function HistoryClient({ uploads: initialUploads }: Props) {
                   <span style={{ fontSize: "13px", color: "var(--color-expense)" }}>
                     Удалить «{upload.file_name}» и все её транзакции?
                   </span>
-                  <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
+                  <div className="history-confirm-actions" style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
                     <button
                       onClick={() => setConfirmId(null)}
                       style={{

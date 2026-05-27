@@ -174,10 +174,10 @@ export default function TransactionsClient({ transactions }: Props) {
   };
 
   return (
-    <div className="responsive-padding" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+    <div className="responsive-padding" style={{ display: "flex", flexDirection: "column", gap: "16px", boxSizing: "border-box", width: "100%" }}>
 
       {/* Заголовок + карточки метрик */}
-      <div className="animate-fade-up" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
+      <div className="page-header animate-fade-up">
         <div>
           <h1 style={{ fontSize: "22px", fontWeight: 600, color: "var(--text-primary)", margin: 0, letterSpacing: "-0.02em" }}>
             Транзакции
@@ -188,7 +188,7 @@ export default function TransactionsClient({ transactions }: Props) {
         </div>
 
         {/* Карточки расходов и доходов — как на дашборде */}
-        <div style={{ display: "flex", gap: "10px", flexShrink: 0 }}>
+        <div className="header-metrics">
           <div className="metric-card" style={{
             minWidth: "150px",
             boxShadow: "0 0 0 0.5px var(--glass-border), 0 8px 32px rgba(248,113,113,0.1)",
@@ -216,13 +216,13 @@ export default function TransactionsClient({ transactions }: Props) {
 
       {/* Блок фильтров */}
       <div
-        className="glass-card animate-fade-up delay-1"
-        style={{ padding: "14px 16px", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}
+        className="glass-card filters-row animate-fade-up delay-1"
+        style={{ padding: "14px 16px" }}
       >
         <Filter size={14} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
 
         {/* Поиск */}
-        <div style={{ position: "relative", flex: "1", minWidth: "180px" }}>
+        <div className="filter-grow" style={{ position: "relative", flex: "1", minWidth: "180px" }}>
           <Search size={13} style={{
             position: "absolute", left: "10px", top: "50%",
             transform: "translateY(-50%)", color: "var(--text-muted)",
