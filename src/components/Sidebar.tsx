@@ -13,6 +13,7 @@
 */
 
 import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useSyncExternalStore } from "react";
 import { createClient } from "@/utils/supabase/client";
 import {
@@ -189,9 +190,10 @@ export default function Sidebar() {
       {/* ---- Навигация ---- */}
       <nav style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1 }}>
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
-          <a
+          <Link
             key={href}
             href={href}
+            prefetch
             className={`nav-link ${isActive(href) ? "active" : ""}`}
           >
             <Icon
@@ -201,7 +203,7 @@ export default function Sidebar() {
               style={{ flexShrink: 0, opacity: isActive(href) ? 1 : 0.7 }}
             />
             {label}
-          </a>
+          </Link>
         ))}
       </nav>
 
@@ -265,9 +267,10 @@ export default function Sidebar() {
     {/* ---- Мобильная нижняя навигация ---- */}
     <nav className="mobile-nav">
       {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
-        <a
+        <Link
           key={href}
           href={href}
+          prefetch
           style={{
             display: "flex",
             flexDirection: "column",
@@ -287,7 +290,7 @@ export default function Sidebar() {
           <span style={{ fontSize: "10px", fontWeight: isActive(href) ? 500 : 400 }}>
             {label}
           </span>
-        </a>
+        </Link>
       ))}
     </nav>
     </>

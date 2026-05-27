@@ -482,10 +482,11 @@ html, body {
     }
 
     /* Главный скролл-контейнер дашборда: контент не должен уходить под
-       зафиксированный верхний бар и нижнюю навигацию. */
+       зафиксированный верхний бар и нижнюю навигацию.
+       calc() добавляет safe-area-inset-bottom для iPhone с home indicator. */
     .dashboard-main {
       padding-top: 52px;
-      padding-bottom: 60px;
+      padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
     }
 
     /* Шапка страницы на мобильном — стек вертикально, action на всю ширину */
@@ -819,6 +820,19 @@ html, body {
     cursor: not-allowed;
     opacity: 0.65;
     transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Дублируем критичные мобильные правила вне @layer components —
+   гарантия что padding для шапки/нижней навигации применится даже
+   если @layer specificity отработает не так, как ожидаем.
+   -------------------------------------------------------------- */
+@media (max-width: 767px) {
+  .dashboard-main {
+    padding-top: 52px !important;
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+    box-sizing: border-box !important;
   }
 }
 

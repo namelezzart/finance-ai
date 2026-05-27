@@ -30,9 +30,14 @@ export default function DashboardLayout({
         style={{
           flex: 1,
           minWidth: 0,
-          overflowY: "auto",  /* Скролл только здесь — sidebar не трогается */
+          overflowY: "auto",   /* Скролл только здесь — sidebar не трогается */
           overflowX: "hidden", /* Никакого горизонтального свайпа */
           height: "100vh",
+          /* ВАЖНО: border-box чтобы padding-top/bottom для mobile-header
+             и mobile-nav (52px + 60px) вычитались ИЗ 100vh, а не добавлялись.
+             Без этого нижние 112px main'а уходят за viewport и контент
+             прячется под nav. */
+          boxSizing: "border-box",
         }}
       >
         {children}
