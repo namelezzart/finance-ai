@@ -489,15 +489,16 @@ html, body {
       padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
     }
 
-    /* Шапка страницы на мобильном — стек вертикально, action на всю ширину */
+    /* Шапка страницы на мобильном — стек вертикально, заголовок слева,
+       action — компактная кнопка под ним (не растягивается во всю ширину). */
     .page-header {
       flex-direction: column;
-      align-items: stretch;
+      align-items: flex-start;
       gap: 12px;
     }
 
     .page-header-action {
-      width: 100%;
+      width: auto;
       justify-content: center;
     }
 
