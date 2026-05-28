@@ -146,30 +146,30 @@ export default function Sidebar() {
           marginBottom: "8px",
         }}
       >
-        {/* Иконка — шестиугольник с градиентом */}
+        {/* Иконка — плоский янтарный маркер (терминальный стиль) */}
         <div
           style={{
             width: "30px",
             height: "30px",
-            background: "linear-gradient(135deg, #7c3aed, #6366f1)",
-            borderRadius: "8px",
+            background: "var(--accent)",
+            borderRadius: "var(--radius-sm)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
-            boxShadow: "0 0 12px rgba(124, 58, 237, 0.4)",
           }}
         >
-          <Hexagon size={16} color="white" strokeWidth={1.5} />
+          <Hexagon size={16} color="var(--accent-fg)" strokeWidth={1.5} />
         </div>
 
         <div>
           <div
             style={{
+              fontFamily: "'IBM Plex Mono', ui-monospace, monospace",
               fontSize: "14px",
               fontWeight: 600,
               color: "var(--accent-light)",
-              letterSpacing: "0.01em",
+              letterSpacing: "0.02em",
               lineHeight: 1.2,
             }}
           >

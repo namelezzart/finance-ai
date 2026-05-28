@@ -9,7 +9,7 @@
   Это требование CSS-спецификации — PostCSS/Turbopack строго следит за этим.
   Поэтому шрифты подключаем самой первой строкой.
 */
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -20,100 +20,111 @@
    Glassmorphism строится на полупрозрачных слоях поверх градиента.
    -------------------------------------------------------------- */
 :root {
-  /* Базовый фиолетовый акцент */
-  --accent:           #7c3aed;
-  --accent-hover:     #6d28d9;
-  --accent-light:     #a78bfa;
-  --accent-muted:     rgba(124, 58, 237, 0.15);
-  --accent-subtle:    rgba(124, 58, 237, 0.07);
+  /* Акцент — кобальт/электрик (институциональный, без крипто-оттенка) */
+  --accent:           #3b5bff;
+  --accent-hover:     #5670ff;
+  --accent-light:     #93a6ff;
+  --accent-muted:     rgba(59, 91, 255, 0.16);
+  --accent-subtle:    rgba(59, 91, 255, 0.07);
+  --accent-fg:        #f5f7ff;                  /* текст поверх акцента */
+  --accent-glow:      rgba(59, 91, 255, 0.18);  /* свечение за курсором */
 
-  /* Фоны (тёмная) */
-  --bg-base:          #080810;
-  --bg-surface:       rgba(255, 255, 255, 0.04);
-  --bg-surface-hover: rgba(255, 255, 255, 0.07);
-  --bg-elevated:      rgba(255, 255, 255, 0.06);
+  /* Фоны — почти чёрный, нейтральный (никакого navy/фиолета) */
+  --bg-base:          #0a0b0d;
+  --bg-surface:       #101216;
+  --bg-surface-hover: #16181e;
+  --bg-elevated:      #14161b;
 
-  /* Стекло (glassmorphism) */
-  --glass-bg:         rgba(18, 14, 40, 0.6);
-  --glass-border:     rgba(255, 255, 255, 0.09);
-  --glass-blur:       blur(16px);
+  /* Бывшее "стекло" — теперь плоская панель с волосяной рамкой, без блюра */
+  --glass-bg:         #0e0f13;
+  --glass-border:     rgba(255, 255, 255, 0.10);
+  --glass-blur:       none;
 
-  /* Текст */
-  --text-primary:     #ede9ff;
-  --text-secondary:   #9490b8;
-  --text-muted:       #5e5a7a;
+  /* Текст — тёплый фосфорный офф-уайт */
+  --text-primary:     #e6e4dd;
+  --text-secondary:   #8b8d94;
+  --text-muted:       #55575f;
 
-  /* Границы */
-  --border:           rgba(255, 255, 255, 0.08);
-  --border-accent:    rgba(124, 58, 237, 0.3);
+  /* Границы — волосяные линии */
+  --border:           rgba(255, 255, 255, 0.09);
+  --border-accent:    rgba(59, 91, 255, 0.5);
 
   /* Sidebar */
-  --sidebar-bg:       rgba(8, 6, 20, 0.95);
-  --sidebar-border:   rgba(124, 58, 237, 0.18);
-  --nav-active-bg:    rgba(124, 58, 237, 0.2);
-  --nav-active-text:  #c4b5fd;
-  --nav-text:         #6d6a90;
-  --nav-hover-bg:     rgba(124, 58, 237, 0.1);
+  --sidebar-bg:       #0a0b0d;
+  --sidebar-border:   rgba(255, 255, 255, 0.08);
+  --nav-active-bg:    rgba(59, 91, 255, 0.14);
+  --nav-active-text:  #93a6ff;
+  --nav-text:         #71737b;
+  --nav-hover-bg:     rgba(255, 255, 255, 0.04);
 
-  /* Семантические цвета */
-  --color-income:     #34d399;
-  --color-expense:    #f87171;
-  --color-income-bg:  rgba(52, 211, 153, 0.12);
-  --color-expense-bg: rgba(248, 113, 113, 0.12);
+  /* Семантические цвета — терминальные green/red */
+  --color-income:     #3fb950;
+  --color-expense:    #f85149;
+  --color-income-bg:  rgba(63, 185, 80, 0.12);
+  --color-expense-bg: rgba(248, 81, 73, 0.12);
 
-  /* Градиент фона страницы */
-  --page-gradient:    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124, 58, 237, 0.2) 0%, transparent 60%),
-                      radial-gradient(ellipse 40% 40% at 90% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-                      #080810;
+  /* Интерактивный фон — точечное поле, подсвечиваемое под курсором */
+  --grid-dot:         rgba(255, 255, 255, 0.045);
+  --grid-dot-bright:  rgba(147, 166, 255, 0.24);
+  --grid-size:        26px;
 
-  /* Радиус скругления */
-  --radius-sm:  6px;
-  --radius-md:  10px;
-  --radius-lg:  14px;
-  --radius-xl:  18px;
+  /* Острые углы — терминальная эстетика */
+  --radius-sm:  0px;
+  --radius-md:  2px;
+  --radius-lg:  3px;
+  --radius-xl:  4px;
 }
 
 /* ---------------------------------------------------------------
    Светлая тема — переключается классом .light на <html>
    -------------------------------------------------------------- */
 .light {
-  --bg-base:          #f5f3ff;
-  --bg-surface:       rgba(255, 255, 255, 0.8);
-  --bg-surface-hover: rgba(255, 255, 255, 0.95);
-  --bg-elevated:      rgba(255, 255, 255, 0.9);
+  /* Акцент — кобальт, читаемый на бумаге */
+  --accent:           #2a44e0;
+  --accent-hover:     #1f36c0;
+  --accent-light:     #1f36c0;
+  --accent-muted:     rgba(42, 68, 224, 0.12);
+  --accent-subtle:    rgba(42, 68, 224, 0.05);
+  --accent-fg:        #ffffff;
+  --accent-glow:      rgba(42, 68, 224, 0.10);
 
-  --glass-bg:         rgba(255, 255, 255, 0.65);
-  --glass-border:     rgba(124, 58, 237, 0.12);
+  /* Тёплая бумага вместо фиолетовой дымки */
+  --bg-base:          #f3f1ea;
+  --bg-surface:       #fbfaf6;
+  --bg-surface-hover: #ffffff;
+  --bg-elevated:      #ffffff;
 
-  --text-primary:     #1a1433;
-  --text-secondary:   #6b5f9e;
-  --text-muted:       #a89ec8;
+  --glass-bg:         #fbfaf6;
+  --glass-border:     rgba(20, 22, 27, 0.14);
 
-  --border:           rgba(124, 58, 237, 0.1);
-  --border-accent:    rgba(124, 58, 237, 0.25);
+  --text-primary:     #14161b;
+  --text-secondary:   #55585f;
+  --text-muted:       #8b8d94;
 
-  --sidebar-bg:       rgba(250, 248, 255, 0.98);
-  --sidebar-border:   rgba(124, 58, 237, 0.12);
-  --nav-active-bg:    rgba(124, 58, 237, 0.12);
-  --nav-active-text:  #6d28d9;
-  --nav-text:         #8b80b8;
-  --nav-hover-bg:     rgba(124, 58, 237, 0.07);
+  --border:           rgba(20, 22, 27, 0.12);
+  --border-accent:    rgba(42, 68, 224, 0.5);
 
-  --color-income:     #059669;
-  --color-expense:    #dc2626;
-  --color-income-bg:  rgba(5, 150, 105, 0.1);
-  --color-expense-bg: rgba(220, 38, 38, 0.08);
+  --sidebar-bg:       #efece3;
+  --sidebar-border:   rgba(20, 22, 27, 0.10);
+  --nav-active-bg:    rgba(42, 68, 224, 0.10);
+  --nav-active-text:  #1f36c0;
+  --nav-text:         #6b6e75;
+  --nav-hover-bg:     rgba(20, 22, 27, 0.05);
 
-  --page-gradient:    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124, 58, 237, 0.12) 0%, transparent 60%),
-                      radial-gradient(ellipse 40% 40% at 90% 80%, rgba(99, 102, 241, 0.07) 0%, transparent 50%),
-                      #f5f3ff;
+  --color-income:     #1a7f37;
+  --color-expense:    #cf222e;
+  --color-income-bg:  rgba(26, 127, 55, 0.10);
+  --color-expense-bg: rgba(207, 34, 46, 0.08);
+
+  --grid-dot:         rgba(20, 22, 27, 0.06);
+  --grid-dot-bright:  rgba(42, 68, 224, 0.16);
 }
 
 /* ---------------------------------------------------------------
    Базовые стили — применяем переменные к реальным элементам
    -------------------------------------------------------------- */
 html, body {
-  font-family: 'Geist', 'Geist Sans', system-ui, sans-serif;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
   background: var(--bg-base);
   color: var(--text-primary);
   transition: background 0.3s, color 0.3s;
@@ -132,53 +143,60 @@ html, body {
    Использование: className="glass-card"
    -------------------------------------------------------------- */
 @layer components {
-  /* Основная стеклянная карточка */
+  /* Основная панель — плоская, с волосяной рамкой (никакого блюра) */
   .glass-card {
     background: var(--glass-bg);
-    border: 0.5px solid var(--glass-border);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
-    transition: border-color 0.2s, background 0.2s;
+    transition: border-color 0.15s, background 0.15s;
   }
 
   .glass-card:hover {
     border-color: var(--border-accent);
   }
 
-  /* Карточка метрики на дашборде */
+  /* Карточка метрики на дашборде — мониторная панель данных */
   .metric-card {
     background: var(--glass-bg);
-    border: 0.5px solid var(--glass-border);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border-radius: var(--radius-lg);
-    padding: 1.25rem;
-    transition: all 0.2s;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: 1.1rem 1.25rem;
+    transition: border-color 0.15s, background 0.15s;
     position: relative;
     overflow: hidden;
+    /* Цифры и подписи — моноширинный, терминальный характер */
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  .metric-card:hover {
+    border-color: var(--border-accent);
+    background: var(--bg-surface-hover);
   }
 
   .metric-card::before {
-    /* Декоративный градиентный блик сверху */
+    /* Акцентная засечка-маркер слева сверху вместо блика */
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    top: 0; left: 0;
+    width: 18px;
+    height: 2px;
+    background: var(--accent);
   }
 
-  /* Навигационный пункт в сайдбаре */
+  /* Навигационный пункт в сайдбаре — моно-метка, левый акцентный маркер */
   .nav-link {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 8px 10px;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     color: var(--nav-text);
-    font-size: 13.5px;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 12.5px;
     font-weight: 400;
-    transition: background 0.15s, color 0.15s;
+    letter-spacing: 0.01em;
+    border-left: 2px solid transparent;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
     text-decoration: none;
     white-space: nowrap;
   }
@@ -191,44 +209,53 @@ html, body {
   .nav-link.active {
     background: var(--nav-active-bg);
     color: var(--nav-active-text);
+    border-left-color: var(--accent);
     font-weight: 500;
   }
 
-  /* Badge категории транзакции */
+  /* Badge категории — прямоугольный технический тег, без капсулы */
   .badge-category {
     display: inline-flex;
     align-items: center;
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: var(--radius-sm);
+    border: 1px solid currentColor;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 10px;
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
     white-space: nowrap;
   }
 
-  /* Кнопка с акцентным градиентом */
+  /* Главная кнопка — плоский янтарь, чёрный текст, моно-капс (Swiss) */
   .btn-accent {
-    background: linear-gradient(135deg, var(--accent), #6366f1);
-    color: white;
-    border: none;
-    border-radius: var(--radius-md);
-    padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 500;
+    background: var(--accent);
+    color: var(--accent-fg);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 9px 16px;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
     cursor: pointer;
-    transition: opacity 0.15s, transform 0.1s;
+    transition: background 0.12s, transform 0.08s;
   }
 
   .btn-accent:hover {
-    opacity: 0.9;
+    background: var(--accent-hover);
   }
 
   .btn-accent:active {
-    transform: scale(0.98);
+    transform: translateY(1px);
   }
 
   /* Сумма — расход */
   .amount-expense {
     color: var(--color-expense);
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
     font-weight: 500;
     font-variant-numeric: tabular-nums;
   }
@@ -236,6 +263,7 @@ html, body {
   /* Сумма — доход */
   .amount-income {
     color: var(--color-income);
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
     font-weight: 500;
     font-variant-numeric: tabular-nums;
   }
@@ -341,12 +369,12 @@ html, body {
   .mobile-header-icon {
     width: 26px;
     height: 26px;
-    background: linear-gradient(135deg, #7c3aed, #6366f1);
-    border-radius: 7px;
+    background: var(--accent);
+    color: var(--accent-fg);
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 10px rgba(124, 58, 237, 0.4);
   }
 
   .mobile-header-actions {
@@ -596,15 +624,14 @@ html, body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--accent), #6366f1);
-    color: white;
-    box-shadow: 0 0 18px rgba(124, 58, 237, 0.32);
+    background: var(--accent);
+    color: var(--accent-fg);
   }
 
   .auth-brand-mark {
     width: 32px;
     height: 32px;
-    border-radius: 9px;
+    border-radius: var(--radius-sm);
   }
 
   .auth-brand-title,
@@ -615,8 +642,10 @@ html, body {
 
   .auth-brand-title {
     color: var(--accent-light);
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
     font-size: 14px;
     font-weight: 600;
+    letter-spacing: 0.02em;
   }
 
   .auth-brand-subtitle {
@@ -708,10 +737,10 @@ html, body {
   }
 
   .auth-mode-link.active {
-    background: linear-gradient(135deg, var(--accent), #6366f1);
-    border-color: rgba(255, 255, 255, 0.12);
-    color: white;
-    box-shadow: 0 8px 22px rgba(124, 58, 237, 0.22);
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-fg);
+    font-weight: 600;
   }
 
   .auth-panel-header {
@@ -726,14 +755,16 @@ html, body {
     width: 42px;
     height: 42px;
     flex: 0 0 auto;
-    border-radius: 13px;
+    border-radius: var(--radius-sm);
   }
 
   .auth-panel h1 {
     margin: 0;
     color: var(--text-primary);
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
     font-size: 22px;
     font-weight: 600;
+    letter-spacing: -0.01em;
     line-height: 1.2;
   }
 
@@ -865,8 +896,49 @@ html, body {
    Применяется к wrapper'у, не к body, чтобы не конфликтовать
    -------------------------------------------------------------- */
 .page-bg {
-  background: var(--page-gradient);
+  position: relative;
+  z-index: 1;                 /* над интерактивным фоном */
+  background: transparent;
   min-height: 100vh;
+}
+
+/* ---------------------------------------------------------------
+   Интерактивный фон — точечное поле, оживающее под курсором.
+   --mx/--my задаёт клиентский компонент InteractiveBackground.
+   -------------------------------------------------------------- */
+.interactive-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  --mx: 50vw;
+  --my: 50vh;
+  background: var(--bg-base);
+}
+
+/* Базовое точечное поле — едва заметно по всему экрану */
+.interactive-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(var(--grid-dot) 1px, transparent 1.4px);
+  background-size: var(--grid-size) var(--grid-size);
+}
+
+/* Яркие точки — мягко проявляются вокруг курсора с плавным затуханием
+   до нуля (без чёткого круглого края — чтобы не читалось «пятном») */
+.interactive-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(var(--grid-dot-bright) 1px, transparent 1.4px);
+  background-size: var(--grid-size) var(--grid-size);
+  -webkit-mask: radial-gradient(circle 300px at var(--mx) var(--my), #000, transparent);
+  mask: radial-gradient(circle 300px at var(--mx) var(--my), #000, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .interactive-bg::after { display: none; }
 }
 
 /* ---------------------------------------------------------------
@@ -902,6 +974,18 @@ html, body {
 
 .animate-fade-up {
   animation: fade-up 0.4s ease both;
+}
+
+/* Мигающий курсор — терминальный акцент для пустых состояний */
+@keyframes caret-blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.caret-blink {
+  display: inline-block;
+  margin-left: 1px;
+  animation: caret-blink 1.1s step-end infinite;
 }
 
 /* Задержки для stagger-анимации карточек */

@@ -294,7 +294,7 @@ export default function UploadPage() {
       {/* Встроенные keyframes для spin и pulse */}
       <style>{`
         @keyframes spin  { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(124,58,237,0.3); } 50% { box-shadow: 0 0 0 12px rgba(124,58,237,0); } }
+        @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(59,91,255,0.3); } 50% { box-shadow: 0 0 0 12px rgba(59,91,255,0); } }
       `}</style>
     </div>
   );

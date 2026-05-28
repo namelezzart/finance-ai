@@ -78,6 +78,18 @@ function formatDate(iso: string): string {
   });
 }
 
+/* Моноширинный стек — терминальный характер интерфейса */
+const MONO = "'IBM Plex Mono', ui-monospace, monospace";
+
+/* Склонение слова «операция» под число */
+function pluralOps(n: number): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return "операция";
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return "операции";
+  return "операций";
+}
+
 export default function DashboardOverviewClient({
   metrics,
   topCategories,
@@ -101,55 +113,106 @@ export default function DashboardOverviewClient({
         boxSizing: "border-box",
       }}
     >
-      {/* ---- Заголовок страницы ---- */}
-      <div className="page-header animate-fade-up">
-        <div>
-          <h1
-            style={{
-              fontSize: "22px",
-              fontWeight: 600,
-              color: "var(--text-primary)",
-              margin: 0,
-              letterSpacing: "-0.02em",
-            }}
+      {/* ---- Масштхед страницы (терминальный спец-лист) ---- */}
+      <header className="animate-fade-up" style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+        <div className="page-header">
+          <div>
+            {/* Киккер — моно-метка раздела */}
+            <div
+              style={{
+                fontFamily: MONO,
+                fontSize: "11px",
+                fontWeight: 500,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: "var(--accent)",
+                marginBottom: "6px",
+              }}
+            >
+              FINANCE.AI <span style={{ color: "var(--text-muted)" }}>/ ПАНЕЛЬ</span>
+            </div>
+            <h1
+              style={{
+                fontFamily: MONO,
+                fontSize: "27px",
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                margin: 0,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Обзор
+            </h1>
+            {/* Моно-строка статуса */}
+            <p
+              style={{
+                fontFamily: MONO,
+                fontSize: "12px",
+                color: "var(--text-muted)",
+                margin: "6px 0 0",
+                letterSpacing: "0.02em",
+              }}
+            >
+              {monthLabel.toUpperCase()}
+              <span style={{ color: "var(--border-accent)", margin: "0 8px" }}>·</span>
+              {metrics.txCount} {pluralOps(metrics.txCount)}
+            </p>
+          </div>
+
+          <Link
+            href="/dashboard/upload"
+            className="btn-accent page-header-action"
+            style={{ textDecoration: "none" }}
           >
-            Обзор
-          </h1>
-          <p style={{ fontSize: "13px", color: "var(--text-muted)", margin: "4px 0 0" }}>
-            {monthLabel}
-          </p>
+            <Receipt size={14} />
+            Загрузить выписку
+          </Link>
         </div>
 
-        <Link
-          href="/dashboard/upload"
-          className="btn-accent page-header-action"
-          style={{ textDecoration: "none" }}
-        >
-          <Receipt size={14} />
-          Загрузить выписку
-        </Link>
-      </div>
+        {/* Хайрлайн-разделитель во всю ширину */}
+        <div style={{ height: "1px", background: "var(--border)" }} />
+      </header>
 
-      {/* ---- Пустое состояние ---- */}
+      {/* ---- Пустое состояние — терминальный модуль "ожидание данных" ---- */}
       {isEmpty && (
-        <div className="glass-card empty-card animate-fade-up delay-1">
+        <div
+          className="empty-card animate-fade-up delay-1"
+          style={{
+            border: "1px dashed var(--border-accent)",
+            borderRadius: "var(--radius-md)",
+            background: "var(--glass-bg)",
+          }}
+        >
           <div
             style={{
-              width: "56px",
-              height: "56px",
-              borderRadius: "16px",
+              width: "52px",
+              height: "52px",
+              borderRadius: "var(--radius-sm)",
               background: "var(--accent-muted)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <Receipt size={24} style={{ color: "var(--accent-light)" }} />
+            <Receipt size={22} style={{ color: "var(--accent)" }} />
           </div>
-          <p style={{ color: "var(--text-secondary)", margin: 0, fontSize: "15px" }}>
+          <p
+            style={{
+              fontFamily: MONO,
+              fontSize: "13px",
+              fontWeight: 600,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "var(--accent)",
+              margin: 0,
+            }}
+          >
+            Нет данных<span className="caret-blink">_</span>
+          </p>
+          <p style={{ color: "var(--text-secondary)", margin: 0, fontSize: "14px" }}>
             Пока нет транзакций за этот месяц
           </p>
-          <p style={{ color: "var(--text-muted)", margin: 0, fontSize: "13px" }}>
+          <p style={{ fontFamily: MONO, color: "var(--text-muted)", margin: 0, fontSize: "12px" }}>
             Загрузи выписку из банка чтобы начать анализ
           </p>
           <Link href="/dashboard/upload" className="btn-accent" style={{ textDecoration: "none", marginTop: "8px" }}>
@@ -483,11 +546,32 @@ function SectionHeader({
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
       <div>
-        <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--text-secondary)" }}>
+        <div
+          style={{
+            fontFamily: MONO,
+            fontSize: "12px",
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "var(--text-secondary)",
+            display: "flex",
+            alignItems: "center",
+            gap: "7px",
+          }}
+        >
+          <span style={{ color: "var(--accent)" }}>//</span>
           {title}
         </div>
         {subtitle && (
-          <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "1px" }}>
+          <div
+            style={{
+              fontFamily: MONO,
+              fontSize: "11px",
+              color: "var(--text-muted)",
+              marginTop: "3px",
+              letterSpacing: "0.02em",
+            }}
+          >
             {subtitle}
           </div>
         )}

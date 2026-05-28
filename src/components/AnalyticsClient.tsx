@@ -24,10 +24,12 @@ interface Props {
   transactions: Transaction[];
 }
 
+/* Палитра графиков: кобальт-лид + когерентные тона (синий/тил-семейство
+   с тёплыми вкраплениями для контраста). Гармонирует с акцентом темы. */
 const PIE_COLORS = [
-  "#7c3aed", "#6366f1", "#a78bfa", "#818cf8",
-  "#c4b5fd", "#34d399", "#f59e0b", "#f87171",
-  "#60a5fa", "#e879a0",
+  "#3b5bff", "#56c2b8", "#e0a44e", "#e06c9f",
+  "#3fb950", "#58a6ff", "#8b949e", "#a3c948",
+  "#e07a5f", "#8f9bf2",
 ];
 
 const CAT_LABELS: Record<string, string> = {
@@ -249,10 +251,10 @@ export default function AnalyticsClient({ transactions }: Props) {
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                   <XAxis dataKey="month" tick={{ fontSize: 11, fill: "var(--text-muted)" }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}к`} />
-                  <Tooltip content={<BarTooltip />} cursor={{ fill: "rgba(124,58,237,0.06)" }} />
+                  <Tooltip content={<BarTooltip />} cursor={{ fill: "rgba(59,91,255,0.08)" }} />
                   <Legend wrapperStyle={{ fontSize: "12px", color: "var(--text-muted)", paddingTop: "8px" }} />
-                  <Bar dataKey="Доходы"  fill="#34d399" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="Расходы" fill="#7c3aed" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Доходы"  fill="#3fb950" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="Расходы" fill="#3b5bff" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
