@@ -332,11 +332,14 @@ export default function DashboardOverviewClient({
                         <div
                           style={{
                             height: "100%",
-                            width: `${cat.pct}%`,
+                            width: "100%",
+                            transformOrigin: "left",
                             background: `linear-gradient(90deg, ${color.text}aa, ${color.text})`,
                             borderRadius: "3px",
-                            /* Анимация прогресс-бара при загрузке */
-                            transition: "width 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
+                            /* Заливка через transform: scaleX (без reflow).
+                               --p = доля; keyframe растёт от 0 до scaleX(var(--p)). */
+                            ["--p" as string]: cat.pct / 100,
+                            animation: "bar-grow 0.6s cubic-bezier(0.32, 0.72, 0, 1) both",
                           }}
                         />
                       </div>

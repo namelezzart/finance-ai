@@ -290,7 +290,7 @@ export default function AnalyticsClient({ transactions }: Props) {
             </div>
 
             {aiText && (
-              <div style={{
+              <div className="animate-reveal-soft" style={{
                 padding: "14px 16px",
                 background: "var(--accent-subtle)",
                 borderRadius: "var(--radius-md)",

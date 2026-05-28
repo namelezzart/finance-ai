@@ -1023,6 +1023,34 @@ html, body {
 .delay-3 { animation-delay: 0.15s; }
 .delay-4 { animation-delay: 0.2s; }
 
+/* Заливка прогресс-бара через transform (без reflow).
+   --p задаётся инлайн = доля заполнения. */
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(var(--p, 1)); }
+}
+
+/* Раскрытие inline-подтверждения удаления (slide-down + fade) */
+@keyframes reveal-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-reveal-down { animation: reveal-down 0.22s cubic-bezier(0.32, 0.72, 0, 1) both; }
+
+/* Мягкое проявление результата (opacity + translateY + blur) */
+@keyframes reveal-soft {
+  from { opacity: 0; transform: translateY(8px); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.animate-reveal-soft { animation: reveal-soft 0.32s cubic-bezier(0.32, 0.72, 0, 1) both; }
+
+/* Своп иконки статуса (opacity + scale 0.9 -> 1) */
+@keyframes icon-pop {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.animate-icon-pop { animation: icon-pop 0.18s ease-out both; }
+
 /* ---------------------------------------------------------------
    prefers-reduced-motion — обязательный guard.
    Гасим все анимации/переходы (включая курсор, fade-up, pulse,

@@ -235,7 +235,7 @@ export default function HistoryClient({ uploads: initialUploads }: Props) {
 
               {/* Inline подтверждение удаления — под строкой */}
               {confirmId === upload.id && (
-                <div className="history-confirm" style={{
+                <div className="history-confirm animate-reveal-down" style={{
                   display: "flex", alignItems: "center", justifyContent: "space-between",
                   padding: "10px 16px",
                   background: "var(--color-expense-bg)",

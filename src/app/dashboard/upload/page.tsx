@@ -170,12 +170,13 @@ export default function UploadPage() {
           background: status === "success" ? "var(--color-income-bg)"
                     : status === "error"   ? "var(--color-expense-bg)"
                     : "var(--accent-muted)",
+          transition: "background 0.18s ease-out",
         }}>
-          {status === "idle"     && <CloudUpload size={28} style={{ color: "var(--accent-light)" }} />}
-          {status === "dragging" && <Upload      size={28} style={{ color: "var(--accent-light)" }} />}
+          {status === "idle"     && <CloudUpload className="animate-icon-pop" size={28} style={{ color: "var(--accent-light)" }} />}
+          {status === "dragging" && <Upload      className="animate-icon-pop" size={28} style={{ color: "var(--accent-light)" }} />}
           {status === "loading"  && <Loader2     size={28} style={{ color: "var(--accent-light)", animation: "spin 1s linear infinite" }} />}
-          {status === "success"  && <CheckCircle size={28} style={{ color: "var(--color-income)" }} />}
-          {status === "error"    && <XCircle     size={28} style={{ color: "var(--color-expense)" }} />}
+          {status === "success"  && <CheckCircle className="animate-icon-pop" size={28} style={{ color: "var(--color-income)" }} />}
+          {status === "error"    && <XCircle     className="animate-icon-pop" size={28} style={{ color: "var(--color-expense)" }} />}
         </div>
 
         {/* Текст */}
