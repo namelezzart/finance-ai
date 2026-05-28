@@ -170,8 +170,6 @@ export default function UploadPage() {
           background: status === "success" ? "var(--color-income-bg)"
                     : status === "error"   ? "var(--color-expense-bg)"
                     : "var(--accent-muted)",
-          /* Пульсирующая тень при загрузке */
-          animation: status === "loading" ? "pulse 1.5s infinite" : "none",
         }}>
           {status === "idle"     && <CloudUpload size={28} style={{ color: "var(--accent-light)" }} />}
           {status === "dragging" && <Upload      size={28} style={{ color: "var(--accent-light)" }} />}
@@ -291,10 +289,9 @@ export default function UploadPage() {
         </div>
       </div>
 
-      {/* Встроенные keyframes для spin и pulse */}
+      {/* Встроенные keyframes для spin */}
       <style>{`
         @keyframes spin  { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(59,91,255,0.3); } 50% { box-shadow: 0 0 0 12px rgba(59,91,255,0); } }
       `}</style>
     </div>
   );

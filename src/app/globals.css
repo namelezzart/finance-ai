@@ -183,6 +183,24 @@ html, body {
     background: var(--accent);
   }
 
+  /* Hover-фидбек: акцентная линия прочерчивается по верху карточки.
+     transform/scaleX — без reflow; transform-origin слева — линия "растёт". */
+  .metric-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.18s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .metric-card:hover::after {
+    transform: scaleX(1);
+  }
+
   /* Навигационный пункт в сайдбаре — моно-метка, левый акцентный маркер */
   .nav-link {
     display: flex;
@@ -973,7 +991,18 @@ html, body {
 }
 
 .animate-fade-up {
-  animation: fade-up 0.4s ease both;
+  animation: fade-up 0.4s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+/* Вход контента при переходе между страницами (dashboard/template.tsx).
+   Цель — ориентация/непрерывность при смене роута, не декор. */
+@keyframes route-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.route-enter {
+  animation: route-enter 0.3s cubic-bezier(0.32, 0.72, 0, 1) both;
 }
 
 /* Мигающий курсор — терминальный акцент для пустых состояний */
@@ -993,4 +1022,18 @@ html, body {
 .delay-2 { animation-delay: 0.1s; }
 .delay-3 { animation-delay: 0.15s; }
 .delay-4 { animation-delay: 0.2s; }
+
+/* ---------------------------------------------------------------
+   prefers-reduced-motion — обязательный guard.
+   Гасим все анимации/переходы (включая курсор, fade-up, pulse,
+   route-enter) для пользователей, чувствительных к движению.
+   -------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
